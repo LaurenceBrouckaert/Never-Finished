@@ -1,0 +1,342 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mijn Kast</title>
+<style>
+:root{--bg:#f4eee4;--bg2:#ebe2d3;--ink:#5b4d3d;--ring:#cdbda5}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior:none}
+img{user-select:none;-webkit-user-drag:none;-webkit-user-select:none}
+.scene{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .9s ease}
+.scene.on{opacity:1;pointer-events:auto}
+
+/* 1. kast */
+#intro{background:var(--bg);cursor:pointer}
+#intro video,#intro canvas,#intro .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#intro #src{width:2px;height:2px;inset:auto;left:0;top:0;opacity:.01;pointer-events:none}
+
+/* 2. rek */
+#rack{background:radial-gradient(ellipse at 50% 40%,#fbf7f0 0%,var(--bg) 55%,var(--bg2) 100%)}
+#strip{position:absolute;inset:0;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 calc(50vw - 21vh);gap:6vh;-webkit-overflow-scrolling:touch}
+#strip::-webkit-scrollbar{display:none}
+.item{flex:0 0 42vh;height:66vh;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform .35s ease,opacity .35s ease;will-change:transform}
+.item.worn img{opacity:.18;filter:grayscale(.4)}
+.item img{transition:opacity .5s;max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(90,70,40,.18));
+  animation:float 6s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-1.6deg)}50%{transform:translateY(-10px) rotate(1.6deg)}}
+@media (max-aspect-ratio:3/4){#strip{padding:0 calc(50vw - 33vw);gap:8vw}.item{flex-basis:66vw;height:60vh}}
+
+/* knoppen (enkel iconen) */
+.btn{position:absolute;width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.72);
+  box-shadow:0 4px 14px rgba(90,70,40,.15);display:grid;place-items:center;cursor:pointer;color:var(--ink);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .2s}
+.btn:hover{transform:scale(1.07)}
+.btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#toMirror{right:max(18px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom))}
+#toRack{left:max(16px,env(safe-area-inset-left));top:max(16px,env(safe-area-inset-top));z-index:5}
+#undress{right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:5}
+
+/* 3. spiegel */
+#mirror{background:var(--bg)}
+#stage{position:absolute;left:0;right:0;top:0;bottom:104px;overflow:hidden;touch-action:none}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#world.anim{transition:transform 1.8s cubic-bezier(.6,.05,.25,1)}
+#world>img.me{display:block;width:100%;height:100%}
+.wear{position:absolute;touch-action:none;cursor:grab;transform-origin:50% 0;
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.22));transition:opacity .5s ease}
+.wear.drop{animation:drop .7s cubic-bezier(.3,1.4,.5,1)}
+@keyframes drop{from{transform:translateY(-14%) scale(1.04);opacity:0}to{transform:none;opacity:1}}
+#tray{position:absolute;left:0;right:0;bottom:0;height:104px;display:flex;gap:12px;align-items:center;
+  overflow-x:auto;scrollbar-width:none;padding:0 16px max(8px,env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(235,226,211,.9) 30%)}
+#tray::-webkit-scrollbar{display:none}
+#tray button{flex:0 0 76px;height:76px;border-radius:18px;border:0;background:#fff8ee;cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 2px 8px rgba(90,70,40,.1);transition:transform .2s,box-shadow .2s}
+#tray button img{max-width:62px;max-height:62px}
+#tray button.on{box-shadow:0 0 0 3px var(--ring),0 4px 12px rgba(90,70,40,.18);transform:translateY(-3px)}
+@media (min-width:700px){#tray{justify-content:center}}
+</style>
+</head>
+<body>
+
+<section class="scene on" id="intro">
+  <img class="poster" src="kast0.jpg" alt="">
+  <canvas id="gl" width="1280" height="720"></canvas>
+  <video id="src" src="kastp.mp4" playsinline muted preload="auto" crossorigin="anonymous"></video>
+</section>
+
+<section class="scene" id="rack">
+  <div id="strip"></div>
+  <button class="btn" id="toMirror" aria-label="spiegel">
+    <svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="6"/><path d="M10 7.5l-1.5 2M13.5 7l-3.5 5"/></svg>
+  </button>
+</section>
+
+<section class="scene" id="mirror">
+  <div id="stage"><div id="world"><img class="me" src="me.jpg" alt=""></div></div>
+  <button class="btn" id="toRack" aria-label="kast">
+    <svg viewBox="0 0 24 24"><path d="M12 7.5a2 2 0 1 1 2-2c0 1.2-2 1.6-2 3v1.2L3 15.5c-.8.5-.5 1.7.5 1.7h17c1 0 1.3-1.2.5-1.7L12 9.7"/></svg>
+  </button>
+  <button class="btn" id="undress" aria-label="uit">
+    <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>
+  </button>
+  <div id="tray"></div>
+</section>
+
+<script>
+/* foto in eenheden: 700 breed */
+const PW=700, PH=700*2337/2400;
+const MIRROR={x:440,y:105,w:210,h:440};         // jij in de spiegel
+const NECK={x:544,y:193}, WAIST={x:543,y:303};    // ankerpunten op het lichaam
+// w = breedte van het kledingstuk op het lichaam, dx/dy = kleine correcties
+const ITEMS=[
+ {n:0,type:'top',w:128,dx:0,dy:2},
+ {n:1,type:'top',w:134,dx:0,dy:0},
+ {n:2,type:'top',w:152,dx:0,dy:-2},
+ {n:3,type:'top',w:142,dx:0,dy:-14},
+ {n:4,type:'top',w:132,dx:0,dy:-2},
+ {n:5,type:'bottom',w:104,dx:0,dy:0},
+ {n:6,type:'top',w:136,dx:0,dy:-12},
+ {n:7,type:'top',w:126,dx:0,dy:-6},
+ {n:8,type:'top',w:134,dx:0,dy:2},
+ {n:9,type:'top',w:136,dx:0,dy:0}
+];
+const $=s=>document.querySelector(s);
+const scenes={intro:$('#intro'),rack:$('#rack'),mirror:$('#mirror')};
+let current='intro';
+function show(name){
+  Object.entries(scenes).forEach(([k,el])=>el.classList.toggle('on',k===name));
+  current=name;
+  if(name==='mirror') enterMirror();
+  if(name==='rack') requestAnimationFrame(rackFx);
+}
+
+/* ---------- 1. kast opendoen ---------- */
+/* de kast-video: achterwand + hand, daarover tekenen we live de kleren die NIET gedragen worden */
+const INV=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,[0.87079,-0.02078,-375.6192,0.02078,0.87079,103.73665,0.0,0.0],[0.86651,-0.02099,-372.34868,0.02099,0.86651,105.09456,0.458,-0.051],[0.86602,-0.02083,-371.57198,0.02083,0.86602,105.79707,0.516,0.425],[0.87023,-0.01523,-375.50428,0.01523,0.87023,109.10921,0.784,1.242],[0.86907,-0.01386,-374.89878,0.01386,0.86907,110.10395,0.352,-0.301],[0.86878,-0.01148,-375.16689,0.01148,0.86878,111.31293,0.404,-0.416],[0.86712,-0.00974,-374.26875,0.00974,0.86712,112.18062,0.465,-0.844],[0.86482,-0.00841,-372.74472,0.00841,0.86482,112.65176,0.53,-1.21],[0.86262,-0.00678,-371.17335,0.00678,0.86262,113.16102,0.752,-1.324],[0.86304,-0.0049,-371.18202,0.0049,0.86304,113.36246,0.935,-0.851],[0.86292,-0.00297,-370.50038,0.00297,0.86292,113.7988,1.295,-0.842],[0.86296,-0.00072,-369.72521,0.00072,0.86296,114.50008,1.618,-0.726],[0.86175,0.00066,-367.53059,-0.00066,0.86175,114.985,1.915,-0.832],[0.86012,0.00188,-364.82464,-0.00188,0.86012,115.41435,2.099,-0.938],[0.85817,0.00314,-361.75735,-0.00314,0.85817,115.72371,2.276,-1.202],[0.8566,0.00483,-358.87478,-0.00483,0.8566,116.11801,2.484,-1.248],[0.85709,0.00704,-357.25003,-0.00704,0.85709,116.37819,2.735,-0.981],[0.85709,0.00704,-357.25003,-0.00704,0.85709,116.37819,0.0,0.0],[0.85061,0.00793,-350.50651,-0.00793,0.85061,117.65541,2.915,-1.621],[0.84625,0.00852,-345.63445,-0.00852,0.84625,117.34064,2.296,-2.266],[0.84229,0.00812,-340.79407,-0.00812,0.84229,115.84653,2.161,-2.663],[0.83194,0.00441,-330.17037,-0.00441,0.83194,115.88454,2.664,-1.309],[0.82481,-3e-05,-322.03313,3e-05,0.82481,112.93514,1.977,-2.675],[0.81726,-0.00548,-313.38224,0.00548,0.81726,109.39955,1.852,-2.77],[0.81218,-0.0145,-305.97713,0.0145,0.81218,102.48085,0.908,-2.977],[0.80638,-0.02524,-298.26413,0.02524,0.80638,94.61767,0.139,-3.076],[0.79727,-0.03926,-287.71891,0.03926,0.79727,85.55261,-0.334,-3.367],[0.79727,-0.03926,-287.71891,0.03926,0.79727,85.55261,0.0,0.0],[0.80564,-0.04014,-290.52489,0.04014,0.80564,82.21719,2.235,0.242],[0.81725,-0.04152,-295.30305,0.04152,0.81725,77.64907,2.158,0.49],[0.82702,-0.04132,-298.93382,0.04132,0.82702,75.10789,2.687,0.848],[0.84284,-0.04068,-306.09818,0.04068,0.84284,70.32131,3.195,0.498],[0.8527,-0.04085,-308.64111,0.04085,0.8527,67.26888,3.708,0.607],[0.86464,-0.0421,-312.801,0.0421,0.86464,62.94343,3.031,0.775],[0.87397,-0.04295,-315.50043,0.04295,0.87397,58.50179,2.965,-0.542],[0.88674,-0.04386,-321.23616,0.04386,0.88674,52.34439,2.11,-0.971],[0.89834,-0.04363,-326.26271,0.04363,0.89834,46.81252,2.48,-1.503],[0.91156,-0.04495,-331.52316,0.04495,0.91156,39.48044,2.724,-1.733],[0.92216,-0.04546,-335.36729,0.04546,0.92216,33.97994,2.757,-1.357],[0.93142,-0.0485,-336.30729,0.0485,0.93142,27.89498,3.889,-0.804],[0.94025,-0.04905,-336.05605,0.04905,0.94025,23.93489,5.708,-0.433],[0.94903,-0.04968,-333.71677,0.04968,0.94903,20.77798,7.73,0.411],[0.95657,-0.0486,-330.04864,0.0486,0.95657,18.84677,8.883,0.092],[0.96277,-0.04938,-323.62222,0.04938,0.96277,17.34571,10.113,1.225],[0.97038,-0.04985,-316.97873,0.04985,0.97038,15.91353,11.343,1.611],[0.97778,-0.04859,-310.32284,0.04859,0.97778,15.6367,11.848,1.581],[0.98426,-0.04676,-302.39057,0.04676,0.98426,16.06465,12.734,1.588],[0.99013,-0.04517,-292.74673,0.04517,0.99013,16.20247,13.977,1.23],[0.99488,-0.04426,-280.8531,0.04426,0.99488,16.01347,15.263,0.943],[0.99911,-0.04058,-269.01169,0.04058,0.99911,17.31169,15.869,0.464],[1.00322,-0.03749,-256.21902,0.03749,1.00322,17.97792,16.536,0.172],[1.00713,-0.03424,-242.7897,0.03424,1.00713,18.37135,17.105,-0.28],[1.01103,-0.03094,-229.31506,0.03094,1.01103,18.57601,17.159,-0.506],[1.0147,-0.0276,-215.64258,0.0276,1.0147,18.29127,17.224,-1.102],[1.01969,-0.02415,-202.30461,0.02415,1.01969,17.37497,17.774,-1.329],[1.023,-0.02161,-188.30977,0.02161,1.023,16.67117,17.025,-1.133],[1.02607,-0.01971,-174.69263,0.01971,1.02607,15.80407,16.264,-0.983],[1.02959,-0.01755,-162.31672,0.01755,1.02959,15.23647,15.407,-0.685],[1.03306,-0.01568,-150.79897,0.01568,1.03306,14.84135,14.414,-0.338],[1.03626,-0.01473,-139.38568,0.01473,1.03626,14.40666,13.801,0.108],[1.03888,-0.01323,-128.74891,0.01323,1.03888,14.47798,12.857,0.06],[1.04033,-0.01184,-118.42588,0.01184,1.04033,14.58022,11.75,-0.272],[1.0414,-0.01038,-108.74619,0.01038,1.0414,14.18443,10.889,-0.939],[1.04155,-0.0089,-99.45771,0.0089,1.04155,13.70838,9.92,-1.371],[1.04156,-0.00781,-90.90241,0.00781,1.04156,12.51161,8.952,-1.891],[1.04125,-0.00688,-82.9453,0.00688,1.04125,10.87246,8.094,-2.352],[1.04116,-0.00565,-76.34657,0.00565,1.04116,9.25094,6.984,-2.439],[1.04138,-0.00508,-70.79696,0.00508,1.04138,7.40343,5.897,-2.127],[1.04054,-0.00461,-65.31323,0.00461,1.04054,6.02092,5.117,-1.99],[1.03943,-0.00408,-60.17188,0.00408,1.03943,5.06436,4.619,-1.693],[1.03812,-0.00359,-55.08868,0.00359,1.03812,4.20797,4.423,-1.639],[1.03632,-0.0029,-49.95104,0.0029,1.03632,3.74567,4.231,-1.557],[1.03418,-0.00244,-44.73952,0.00244,1.03418,3.26885,4.011,-1.539],[1.03181,-0.00205,-39.64563,0.00205,1.03181,2.75581,3.713,-1.62],[1.02923,-0.00159,-34.89117,0.00159,1.02923,2.36316,3.271,-1.612],[1.02706,-0.00113,-30.71779,0.00113,1.02706,1.63848,2.949,-1.803],[1.02416,-0.0011,-26.32556,0.0011,1.02416,1.07585,2.548,-1.629],[1.02146,-0.00098,-22.2046,0.00098,1.02146,0.55497,2.439,-1.565],[1.01843,-0.00057,-18.71731,0.00057,1.01843,0.45387,1.695,-1.459],[1.01523,-0.00038,-15.22971,0.00038,1.01523,0.40677,1.505,-1.319],[1.01213,-0.0002,-11.84879,0.0002,1.01213,0.35751,1.462,-1.278],[1.00893,-0.00015,-8.64094,0.00015,1.00893,0.2882,1.18,-1.252],[1.0056,0.00011,-5.72536,-0.00011,1.0056,0.31771,0.876,-1.337],[1.00346,0.00015,-3.24363,-0.00015,1.00346,-0.04349,1.131,-1.158],[1.0,0.0,0.0,0.0,1.0,0.0,0.973,-1.106],[0.99606,-6e-05,3.46752,6e-05,0.99606,0.45658,0.924,-0.921],[0.9918,-0.0001,7.13627,0.0001,0.9918,1.39835,0.928,-0.565],[0.9868,-0.00028,10.97024,0.00028,0.9868,2.6373,0.566,-0.449],[0.98099,-0.00038,14.82783,0.00038,0.98099,4.32929,0.105,-0.335],[0.97478,-0.00041,18.73371,0.00041,0.97478,6.30952,-0.075,-0.238],[0.96807,-0.00055,22.64224,0.00055,0.96807,8.13823,-0.44,-0.494],[0.96105,-0.00075,26.20305,0.00075,0.96105,9.78626,-1.005,-0.757],[0.95367,-0.00114,29.44793,0.00114,0.95367,11.01901,-1.617,-1.171],[0.94633,-0.0016,32.14227,0.0016,0.94633,11.89909,-2.168,-1.466],[0.93836,-0.00209,34.84928,0.00209,0.93836,12.851,-2.572,-1.607],[0.93015,-0.00275,37.5164,0.00275,0.93015,13.55035,-2.827,-1.831],[0.92122,-0.00329,40.48572,0.00329,0.92122,14.23044,-2.933,-2.192],[0.9119,-0.00395,43.57419,0.00395,0.9119,14.94946,-3.118,-2.211],[0.90237,-0.00437,46.69895,0.00437,0.90237,15.72282,-3.123,-2.392],[0.89291,-0.00483,49.73668,0.00483,0.89291,16.49535,-3.185,-2.334],[0.88277,-0.00542,52.91761,0.00542,0.88277,17.36176,-3.52,-2.411],[0.87255,-0.00577,55.79261,0.00577,0.87255,18.2674,-3.793,-2.547],[0.86175,-0.00608,58.84229,0.00608,0.86175,19.4616,-3.972,-2.499],[0.85061,-0.00622,62.03746,0.00622,0.85061,20.99397,-3.987,-2.389],[0.83882,-0.00656,65.65681,0.00656,0.83882,22.49055,-4.049,-2.53],[0.82656,-0.00663,69.41677,0.00663,0.82656,24.14888,-4.11,-2.707],[0.81331,-0.00713,73.72284,0.00713,0.81331,25.14521,-4.354,-3.455],[0.79853,-0.00735,77.92231,0.00735,0.79853,25.71609,-5.342,-4.607],[0.78477,-0.00813,81.56951,0.00813,0.78477,24.69259,-5.434,-5.479],[0.77115,-0.00905,84.71153,0.00905,0.77115,22.77817,-5.91,-6.234],[0.75678,-0.00954,88.39781,0.00954,0.75678,20.71851,-5.685,-6.914],[0.74281,-0.00989,92.59479,0.00989,0.74281,18.26546,-4.872,-7.262],[0.72941,-0.00997,97.04878,0.00997,0.72941,15.69497,-4.15,-7.341],[0.71648,-0.01004,101.43215,0.01004,0.71648,13.88763,-3.915,-6.419],[0.70379,-0.00978,105.72454,0.00978,0.70379,13.60358,-3.741,-5.017],[0.69042,-0.00942,110.55587,0.00942,0.69042,14.72278,-3.588,-3.925],[0.67777,-0.00963,115.7702,0.00963,0.67777,16.29516,-2.965,-2.847],[0.66524,-0.00931,121.40152,0.00931,0.66524,18.38014,-2.265,-2.632],[0.65338,-0.00863,127.16229,0.00863,0.65338,20.89172,-1.588,-2.193],[0.64214,-0.00808,132.94656,0.00808,0.64214,23.77963,-1.216,-1.509],[0.6312,-0.00725,138.62206,0.00725,0.6312,26.81605,-1.022,-1.433],[0.62061,-0.00635,144.31624,0.00635,0.62061,30.0759,-0.76,-1.126],[0.61016,-0.00558,150.10447,0.00558,0.61016,33.30556,-0.621,-1.031],[0.60006,-0.00483,155.4829,0.00483,0.60006,36.21271,-0.817,-1.208],[0.59036,-0.0042,160.50974,0.0042,0.59036,38.65972,-0.951,-1.448],[0.5811,-0.00366,165.2766,0.00366,0.5811,40.9693,-0.971,-1.372],[0.57224,-0.00301,169.62669,0.00301,0.57224,43.12319,-1.08,-1.45],[0.56358,-0.00218,173.56572,0.00218,0.56358,45.3963,-1.306,-1.374],[0.55523,-0.00149,177.01547,0.00149,0.55523,47.43574,-1.648,-1.407],[0.54749,-0.00056,179.68851,0.00056,0.54749,49.50289,-1.948,-1.315],[0.54034,-2e-05,181.68598,2e-05,0.54034,51.76084,-2.383,-0.666],[0.534,0.00067,182.96924,-0.00067,0.534,54.50585,-2.526,0.024],[0.52845,0.00128,183.57586,-0.00128,0.52845,57.4793,-2.723,0.586],[0.52279,0.00196,184.17928,-0.00196,0.52279,60.95553,-2.777,1.002],[0.51756,0.00245,184.51875,-0.00245,0.51756,64.21434,-2.833,1.063],[0.51283,0.00294,184.66634,-0.00294,0.51283,67.19546,-2.7,0.962],[0.50849,0.00351,184.37857,-0.00351,0.50849,70.06815,-2.861,0.951],[0.50475,0.00407,183.91754,-0.00407,0.50475,72.73521,-2.653,0.963],[0.50111,0.0045,183.3333,-0.0045,0.50111,75.32325,-2.757,1.001],[0.49854,0.00493,182.77888,-0.00493,0.49854,77.37077,-2.049,0.847],[0.49647,0.0054,182.19637,-0.0054,0.49647,79.26689,-1.737,0.85],[0.49485,0.00604,181.54537,-0.00604,0.49485,81.15453,-1.455,0.892],[0.49324,0.00657,181.01842,-0.00657,0.49324,82.84617,-1.37,0.777],[0.49186,0.00707,180.17132,-0.00707,0.49186,84.14246,-1.544,0.476],[0.49079,0.0074,179.22025,-0.0074,0.49079,85.19349,-1.525,0.458],[0.49009,0.00773,178.63522,-0.00773,0.49009,86.1598,-0.913,0.5],[0.48958,0.00821,178.65407,-0.00821,0.48958,87.50634,-0.132,0.857],[0.48959,0.00862,179.33086,-0.00862,0.48959,88.89485,0.831,1.13],[0.48979,0.00897,180.58825,-0.00897,0.48979,90.80676,1.512,1.761],[0.49087,0.00919,182.27222,-0.00919,0.49087,92.98634,2.454,2.43],[0.49245,0.00959,184.17242,-0.00959,0.49245,95.03501,3.053,2.362],[0.49452,0.01018,185.78905,-0.01018,0.49452,96.63175,3.154,1.963],[0.49628,0.00979,187.52623,-0.00979,0.49628,97.49649,2.725,1.747],[0.49722,0.00896,188.46929,-0.00896,0.49722,98.31267,1.248,1.687],[0.49811,0.0077,187.95586,-0.0077,0.49811,98.67481,-0.395,1.487],[0.49933,0.00651,185.94137,-0.00651,0.49933,98.83605,-1.669,1.362],[0.50077,0.005,182.85651,-0.005,0.50077,98.60825,-2.702,1.258],[0.50236,0.00364,178.90524,-0.00364,0.50236,98.38762,-3.422,1.223],[0.50419,0.0023,174.23412,-0.0023,0.50419,98.1499,-3.982,1.277],[0.50615,0.00131,169.10876,-0.00131,0.50615,98.23233,-4.228,1.423],[0.50866,0.00083,164.13221,-0.00083,0.50866,98.39592,-3.547,1.375],[0.51162,0.0008,159.4773,-0.0008,0.51162,98.23727,-2.77,0.925],[0.51404,0.00107,155.44493,-0.00107,0.51404,97.95848,-2.388,0.422],[0.51583,0.00135,152.25068,-0.00135,0.51583,97.45043,-1.942,-0.046],[0.51716,0.00184,149.58775,-0.00184,0.51716,96.7891,-1.637,-0.493],[0.51794,0.00222,147.26277,-0.00222,0.51794,96.20861,-1.69,-0.548],[0.51845,0.00288,144.73497,-0.00288,0.51845,95.77464,-1.968,-0.669],[0.51818,0.00341,142.27958,-0.00341,0.51818,95.60815,-2.43,-0.602],[0.51713,0.00385,139.94397,-0.00385,0.51713,95.96465,-2.852,-0.3],[0.51523,0.00418,137.72746,-0.00418,0.51523,96.94583,-3.316,0.084],[0.5126,0.00421,135.37071,-0.00421,0.5126,98.36495,-4.028,0.452],[0.50917,0.0048,132.6925,-0.0048,0.50917,100.17554,-4.662,0.196],[0.50493,0.00573,130.37932,-0.00573,0.50493,102.09398,-4.689,-0.205],[0.50088,0.00613,128.2271,-0.00613,0.50088,103.14225,-4.598,-0.664],[0.49877,0.0051,125.95233,-0.0051,0.49877,103.03718,-4.0,-0.202],[0.49643,0.00418,123.34686,-0.00418,0.49643,102.98037,-4.433,-0.309],[0.49384,0.00414,120.35641,-0.00414,0.49384,103.33519,-4.669,-0.556],[0.49102,0.00331,117.60101,-0.00331,0.49102,104.0325,-4.857,0.213],[0.48721,0.00256,114.61694,-0.00256,0.48721,105.26294,-5.69,0.34],[0.48288,0.00129,111.68407,-0.00129,0.48288,106.37755,-6.163,0.37],[0.47847,0.00115,107.95015,-0.00115,0.47847,107.79875,-6.604,-0.079],[0.47385,-0.00116,104.89695,0.00116,0.47385,108.94321,-6.843,0.961],[0.46942,-0.00108,100.90429,0.00108,0.46942,110.83903,-6.803,0.247],[0.46291,0.0003,98.22994,-0.0003,0.46291,114.08507,-6.342,0.02],[0.45985,0.00142,95.83461,-0.00142,0.45985,116.91351,-3.949,1.005],[0.45871,0.00147,95.32038,-0.00147,0.45871,119.03777,-1.226,1.688],[0.45732,0.00202,95.87336,-0.00202,0.45732,121.68576,-0.135,1.792],[0.45713,0.00149,97.44566,-0.00149,0.45713,124.02723,1.261,2.613],[0.45493,0.00018,99.77144,-0.00018,0.45493,127.24878,0.444,3.269],[0.45567,-0.00106,101.71895,0.00106,0.45567,128.96108,1.971,2.768],[0.45783,-0.00356,103.87089,0.00356,0.45783,129.18384,2.634,2.602],[0.46031,-0.00563,105.50148,0.00563,0.46031,128.75579,2.473,1.792],[0.46418,-0.00837,106.75029,0.00837,0.46418,127.07086,2.745,1.461],[0.46814,-0.01212,107.72536,0.01212,0.46814,124.88799,2.156,1.641],[0.4709,-0.01494,108.18472,0.01494,0.4709,123.09837,1.209,1.014],[0.46909,-0.01571,107.94449,0.01571,0.46909,122.60063,-1.676,-0.659],[0.47088,-0.01613,105.38656,0.01613,0.47088,120.84258,-1.56,-0.84],[0.47338,-0.01616,102.43138,0.01616,0.47338,118.86826,-1.368,-1.062],[0.47756,-0.01644,100.21308,0.01644,0.47756,115.76083,0.355,-1.419],[0.48034,-0.01715,98.34338,0.01715,0.48034,113.79753,-0.345,-0.509],[0.48523,-0.01727,95.54834,0.01727,0.48523,110.9869,0.289,-0.975],[0.4878,-0.01752,93.33915,0.01752,0.4878,108.68748,-0.649,-1.212],[0.48982,-0.0179,91.05496,0.0179,0.48982,106.45145,-1.13,-1.271],[0.49106,-0.01834,88.97826,0.01834,0.49106,104.32567,-1.441,-1.393],[0.49255,-0.01919,87.07488,0.01919,0.49255,101.8727,-1.257,-1.377],[0.4934,-0.0196,85.46906,0.0196,0.4934,99.65571,-1.207,-1.641],[0.49432,-0.0194,83.93163,0.0194,0.49432,97.45283,-0.876,-2.005],[0.49495,-0.01907,82.80375,0.01907,0.49495,95.27618,-0.612,-2.159],[0.49583,-0.01862,81.58082,0.01862,0.49583,92.86731,-0.493,-2.376],[0.49663,-0.01882,80.3461,0.01882,0.49663,90.12042,-0.793,-2.336],[0.49784,-0.01916,78.5088,0.01916,0.49784,87.15544,-1.185,-2.311],[0.49828,-0.01904,76.15986,0.01904,0.49828,84.87141,-2.026,-2.199],[0.49959,-0.01994,72.03702,0.01994,0.49959,81.54981,-3.606,-2.277],[0.50069,-0.02327,66.63963,0.02327,0.50069,77.28298,-5.899,-1.74],[0.50403,-0.025,63.51282,0.025,0.50403,74.64467,-1.609,-0.33],[0.50549,-0.02623,60.92838,0.02623,0.50549,73.13254,-2.096,-0.2],[0.50598,-0.02765,58.91759,0.02765,0.50598,72.18181,-2.204,0.135],[0.50524,-0.02693,51.42177,0.02693,0.50524,71.96459,-7.714,-0.939],[0.50599,-0.02356,43.5627,0.02356,0.50599,73.28809,-6.165,-0.566],[0.50777,-0.01915,35.94686,0.01915,0.50777,75.34706,-4.887,-0.119],[0.50669,-0.0169,34.33566,0.0169,0.50669,78.13344,-1.492,0.95],[0.50809,-0.01606,35.31885,0.01606,0.50809,79.14206,2.181,0.975],[0.50862,-0.01498,37.47551,0.01498,0.50862,80.46415,2.88,0.823],[0.5097,-0.01754,42.06762,0.01754,0.5097,81.09948,4.367,2.663],[0.51144,-0.01395,44.0371,0.01395,0.51144,82.9327,4.37,0.164],[0.51207,-0.01754,49.29075,0.01754,0.51207,83.56886,4.366,3.158],[0.51337,-0.01862,52.20684,0.01862,0.51337,84.27075,3.361,1.862],[0.51441,-0.02129,54.794,0.02129,0.51441,84.67261,2.288,2.487],[0.51906,-0.02312,55.91897,0.02312,0.51906,83.76221,3.447,1.932],[0.52218,-0.02526,56.96823,0.02526,0.52218,83.21009,2.274,1.942],[0.52107,-0.02449,57.58664,0.02449,0.52107,84.22536,0.184,0.122],[0.51704,-0.03025,60.71932,0.03025,0.51704,82.84857,-1.522,0.861],[0.51412,-0.03304,63.4971,0.03304,0.51412,83.15944,-0.094,1.046],[0.51258,-0.03439,65.56872,0.03439,0.51258,83.26851,0.602,0.419],[0.51272,-0.03509,67.19049,0.03509,0.51272,82.92601,1.455,0.155],[0.51353,-0.03478,68.62518,0.03478,0.51353,83.32131,2.072,0.489],[0.515,-0.03233,69.70347,0.03233,0.515,85.76205,2.899,1.401],[0.51668,-0.02909,71.42971,0.02909,0.51668,88.7154,3.967,1.484],[0.51828,-0.02606,73.90971,0.02606,0.51828,91.50989,4.593,1.43],[0.51938,-0.02345,76.73393,0.02345,0.51938,93.99658,4.471,1.216],[0.52047,-0.02089,79.23107,0.02089,0.52047,95.91705,4.119,0.671],[0.52286,-0.01848,81.43385,0.01848,0.52286,97.04699,4.593,0.45],[0.52567,-0.01615,84.01359,0.01615,0.52567,97.72693,5.219,0.202],[0.52971,-0.01395,86.89264,0.01395,0.52971,97.50864,6.257,-0.174],[0.53474,-0.01292,90.40675,0.01292,0.53474,95.78217,7.103,-0.578],[0.54202,-0.01025,92.63598,0.01025,0.54202,94.49133,7.848,-0.377],[0.55054,-0.00965,95.81701,0.00965,0.55054,91.10746,8.852,-0.705],[0.56075,-0.00892,99.02796,0.00892,0.56075,87.03627,10.01,-0.86],[0.5655,-0.01074,106.42571,0.01074,0.5655,84.68484,9.782,0.523],[0.56432,-0.009,114.92567,0.009,0.56432,85.10189,8.368,-1.121],[0.56138,-0.00692,124.88671,0.00692,0.56138,86.63267,8.83,-0.854],[0.55743,-0.00745,136.73641,0.00745,0.55743,88.35176,9.127,0.634],[0.55404,-0.00887,147.05919,0.00887,0.55404,89.59266,7.648,0.931],[0.5489,-0.01143,161.02321,0.01143,0.5489,91.53364,9.752,1.73],[0.54383,-0.01488,174.81127,0.01488,0.54383,93.48917,9.301,2.338],[0.5386,-0.01875,188.24933,0.01875,0.5386,94.95999,8.698,2.06],[0.53186,-0.02233,201.73489,0.02233,0.53186,96.43695,7.877,1.344],[0.52611,-0.02686,213.42683,0.02686,0.52611,97.17105,6.386,1.564],[0.51892,-0.0307,222.01432,0.0307,0.51892,98.48164,2.602,1.182],[0.52219,-0.02874,228.19423,0.02874,0.52219,99.33792,8.981,0.776],[0.52574,-0.02586,235.30048,0.02586,0.52574,100.55754,10.415,0.652],[0.52972,-0.02344,242.15849,0.02344,0.52972,101.93949,10.271,1.269],[0.52961,-0.02511,252.47787,0.02511,0.52961,101.55989,9.648,0.65],[0.52985,-0.02421,263.55251,0.02421,0.52985,103.08494,11.554,1.033],[0.5306,-0.02454,276.69697,0.02454,0.5306,104.20112,13.507,1.6],[0.53176,-0.0248,290.11796,0.0248,0.53176,105.87638,14.07,2.261],[0.53385,-0.02608,303.93178,0.02608,0.53385,107.04751,14.685,2.739],[0.53467,-0.02846,319.6188,0.02846,0.53467,108.83772,15.357,3.609],[0.53803,-0.03193,334.12054,0.03193,0.53803,109.42258,15.408,4.015],[0.53854,-0.03509,351.29057,0.03509,0.53854,111.6396,16.359,4.423],[0.53866,-0.03994,370.48395,0.03994,0.53866,114.09479,17.523,5.606],[0.54033,-0.0449,388.74005,0.0449,0.54033,116.24677,17.536,5.924],[0.5432,-0.0497,406.02469,0.0497,0.5432,118.49049,17.394,6.344]];               // per beeld: beeld -> kast-coördinaten (+ beweging)
+const RACK={"S": 3, "OX": 0, "OY": -60, "CW": 3450, "CH": 3300, "items": [{"n": 3, "x": 399, "y": 300, "w": 870, "h": 951}, {"n": 6, "x": 630, "y": 300, "w": 802, "h": 1208}, {"n": 4, "x": 593, "y": 300, "w": 817, "h": 1208}, {"n": 9, "x": 989, "y": 300, "w": 856, "h": 1208}, {"n": 2, "x": 1302, "y": 301, "w": 870, "h": 1043}, {"n": 7, "x": 1587, "y": 300, "w": 738, "h": 1208}, {"n": 0, "x": 1658, "y": 300, "w": 798, "h": 1208}, {"n": 8, "x": 1846, "y": 300, "w": 848, "h": 1208}, {"n": 1, "x": 1951, "y": 300, "w": 805, "h": 1208}, {"n": 5, "x": 2298, "y": 300, "w": 870, "h": 993}]};             // waar elk kledingstuk aan de stang hangt
+const FPS=30, TS=2/RACK.S;       // textuur op schaal 2
+let vid=$('#src'), cv=$('#gl'), gl=null, prog, texV, texG, useGL=true;
+const gCanvas=document.createElement('canvas');
+gCanvas.width=Math.round(RACK.CW*TS);gCanvas.height=Math.round(RACK.CH*TS);
+const sprites={};
+RACK.items.forEach(it=>{const im=new Image();im.src=`k/${it.n}.webp`;sprites[it.n]=im;im.onload=()=>{drawRack();}});
+let wornSet=new Set();
+function drawRack(){
+  const c=gCanvas.getContext('2d');c.clearRect(0,0,gCanvas.width,gCanvas.height);
+  const X0=110,X1=1038,RAIL=47;
+  const tx=x=>(x-RACK.OX)*RACK.S*TS, ty=y=>(y-RACK.OY)*RACK.S*TS;
+  RACK.items.forEach(it=>{
+    const im=sprites[it.n];if(!im.complete||!im.naturalWidth||wornSet.has(it.n))return;
+    const x=it.x*TS,y=it.y*TS,w=it.w*TS,h=it.h*TS;
+    // schaduw op de achterwand (binnen de kast)
+    c.save();c.beginPath();c.rect(tx(X0),ty(RAIL+7),tx(X1)-tx(X0),gCanvas.height);c.clip();
+    c.shadowColor='rgba(0,0,0,.5)';c.shadowBlur=24;c.shadowOffsetX=20+gCanvas.width;c.shadowOffsetY=28;
+    c.drawImage(im,x-gCanvas.width,y,w,h);c.restore();
+    c.drawImage(im,x,y,w,h);
+  });
+  if(gl){gl.bindTexture(gl.TEXTURE_2D,texG);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,gCanvas);}
+}
+function initGL(){
+  gl=cv.getContext('webgl',{premultipliedAlpha:false,alpha:false});
+  if(!gl) throw 0;
+  const vs=`attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0,1);}`;
+  const fs=`precision highp float;varying vec2 uv;uniform sampler2D V,G;uniform vec3 A,B;uniform vec2 vel,org,size;uniform float on;
+  vec4 g(vec2 r){vec2 t=(r-org)/size;if(t.x<0.||t.y<0.||t.x>1.||t.y>1.)return vec4(0);vec4 c=texture2D(G,t);return vec4(c.rgb*c.a,c.a);}
+  void main(){
+    vec3 plate=texture2D(V,vec2(uv.x,uv.y*.5)).rgb;
+    float keep=texture2D(V,vec2(uv.x,.5+uv.y*.5)).r;
+    vec3 f=vec3(uv.x*1280.,uv.y*720.,1.);
+    vec2 r=vec2(dot(A,f),dot(B,f));
+    vec4 acc=vec4(0);
+    for(int i=0;i<7;i++){acc+=g(r+vel*(float(i)/6.-.5));}
+    acc/=7.;
+    vec3 col=acc.a>0.001?acc.rgb/acc.a:vec3(0);
+    gl_FragColor=vec4(mix(plate,col,clamp(acc.a*keep*on,0.,1.)),1);
+  }`;
+  const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;};
+  prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  const mk=()=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);return t;};
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+  texV=mk();texG=mk();
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,texG);gl.activeTexture(gl.TEXTURE0);
+  gl.uniform1i(gl.getUniformLocation(prog,'V'),0);gl.uniform1i(gl.getUniformLocation(prog,'G'),1);
+  gl.uniform2f(gl.getUniformLocation(prog,'org'),RACK.OX,RACK.OY);
+  gl.uniform2f(gl.getUniformLocation(prog,'size'),RACK.CW/RACK.S,RACK.CH/RACK.S);
+  gl.viewport(0,0,1280,720);
+  gl.activeTexture(gl.TEXTURE1);drawRack();gl.activeTexture(gl.TEXTURE0);
+}
+let lastFrame=-1;
+function render(time){
+  if(!gl||vid.readyState<2)return;
+  const fi=Math.min(INV.length-1,Math.max(0,Math.round(time*FPS)));
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texV);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,vid);
+  const m=INV[fi],U=n=>gl.getUniformLocation(prog,n);
+  if(m){gl.uniform3f(U('A'),m[0],m[1],m[2]);gl.uniform3f(U('B'),m[3],m[4],m[5]);gl.uniform2f(U('vel'),m[6],m[7]);gl.uniform1f(U('on'),1);}
+  else gl.uniform1f(U('on'),0);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  cv.style.opacity=1;
+}
+function loop(){
+  if('requestVideoFrameCallback' in vid){
+    const cb=(now,md)=>{render(md.mediaTime);vid.requestVideoFrameCallback(cb);};vid.requestVideoFrameCallback(cb);
+  } else {const f=()=>{render(vid.currentTime);requestAnimationFrame(f);};requestAnimationFrame(f);}
+}
+cv.style.opacity=0;
+try{initGL();loop();}
+catch(e){ // terugval: vaste video met alle kleren
+  useGL=false;cv.remove();
+  vid.src='kast.mp4';vid.id='vid';vid.removeAttribute('crossorigin');vid.style.cssText='opacity:1;width:100%;height:100%;inset:0';
+}
+vid.play().catch(()=>{});
+scenes.intro.addEventListener('click',()=>{
+  if(vid.paused){vid.muted=false;vid.play().catch(()=>{vid.muted=true;vid.play().catch(()=>{})});}
+  else if(vid.muted){vid.muted=false;}
+  else {vid.pause();show('rack');}
+});
+vid.addEventListener('ended',()=>show('rack'));
+/* de binnenkant van de kast hoogstens 3 seconden tonen (kast gaat open rond 4,7 s) */
+const END_AT=7.6;
+function checkEnd(){
+  if(current==='intro'&&!vid.paused&&vid.currentTime>=END_AT){vid.pause();show('rack');}
+  requestAnimationFrame(checkEnd);
+}
+requestAnimationFrame(checkEnd);
+function replayCloset(){
+  wornSet=new Set(Object.values(worn).filter(i=>i!==null).map(i=>ITEMS[i].n));
+  drawRack();
+  show('intro');
+  try{vid.currentTime=4.0;}catch(e){}
+  vid.play().catch(()=>{});
+}
+
+/* ---------- 2. het rek ---------- */
+const strip=$('#strip');
+const cards=ITEMS.map((it,i)=>{
+  const b=document.createElement('div');b.className='item';
+  const im=new Image();im.src=`g/${it.n}.webp`;im.alt='';im.draggable=false;im.style.setProperty('--d',(-i*1.3)+'s');
+  b.appendChild(im);strip.appendChild(b);
+  b.addEventListener('click',()=>{
+    const r=b.getBoundingClientRect(),c=innerWidth/2;
+    if(Math.abs(r.left+r.width/2-c)>r.width*.4){strip.scrollBy({left:r.left+r.width/2-c,behavior:'smooth'});return;}
+    wear(i,true);show('mirror');
+  });
+  return b;
+});
+strip.addEventListener('wheel',e=>{
+  if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();strip.scrollBy({left:e.deltaY*1.2});}
+},{passive:false});
+addEventListener('keydown',e=>{
+  if(current==='rack'){
+    const w=cards[0].getBoundingClientRect().width+parseFloat(getComputedStyle(strip).gap);
+    if(e.key==='ArrowRight')strip.scrollBy({left:w,behavior:'smooth'});
+    if(e.key==='ArrowLeft')strip.scrollBy({left:-w,behavior:'smooth'});
+  }
+});
+function rackFx(){
+  const c=innerWidth/2;
+  cards.forEach(b=>{
+    const r=b.getBoundingClientRect(),d=Math.min(1,Math.abs(r.left+r.width/2-c)/(innerWidth*.55));
+    b.style.transform=`scale(${1-d*.28})`;b.style.opacity=1-d*.55;
+  });
+}
+strip.addEventListener('scroll',()=>requestAnimationFrame(rackFx),{passive:true});
+addEventListener('resize',()=>{rackFx();if(current==='mirror')fit(false);});
+$('#toMirror').addEventListener('click',()=>show('mirror'));
+
+/* ---------- 3. de spiegel ---------- */
+const stage=$('#stage'),world=$('#world'),tray=$('#tray');
+world.style.width=PW+'px';world.style.height=PH+'px';
+let view={s:1,x:0,y:0};
+function fitRect(r,pad){
+  const W=stage.clientWidth,H=stage.clientHeight;
+  const s=Math.min((W-pad*2)/r.w,(H-pad*2)/r.h);
+  const clamp=(v,size,view)=>size*s<=view?(view-size*s)/2:Math.min(0,Math.max(view-size*s,v));
+  return {s,x:clamp(W/2-(r.x+r.w/2)*s,PW,W),y:clamp(H/2-(r.y+r.h/2)*s,PH,H)};
+}
+function apply(v){view=v;world.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.s})`;}
+function fit(animate){
+  world.classList.toggle('anim',!!animate);
+  apply(fitRect(MIRROR,Math.min(28,stage.clientWidth*.04)));
+}
+let firstVisit=true;
+function enterMirror(){
+  if(firstVisit){
+    firstVisit=false;
+    world.classList.remove('anim');apply(fitRect({x:0,y:0,w:PW,h:PH},0));
+    setTimeout(()=>fit(true),500);
+  } else fit(false);
+}
+
+const worn={top:null,bottom:null}, layers={}, pos={};
+const thumbs=ITEMS.map((it,i)=>{
+  const b=document.createElement('button');b.setAttribute('aria-label','kledingstuk');
+  const im=new Image();im.src=`g/${it.n}.webp`;im.alt='';b.appendChild(im);tray.appendChild(b);
+  b.addEventListener('click',()=>{ if(worn[it.type]===i) takeOff(it.type); else wear(i,true); });
+  return b;
+});
+function place(i){
+  const it=ITEMS[i],p=pos[i],el=layers[i];
+  el.style.width=p.w+'px';el.style.left=(p.x-p.w/2)+'px';el.style.top=p.y+'px';
+}
+function wear(i,anim){
+  const it=ITEMS[i];
+  if(worn[it.type]!==null&&worn[it.type]!==i) takeOff(it.type);
+  if(!layers[i]){
+    const el=new Image();el.src=`c/${it.n}.webp`;el.alt='';el.className='wear';el.draggable=false;
+    el.style.zIndex=it.type==='bottom'?3:2;
+    layers[i]=el;bindGestures(el,i);
+    const a=it.type==='top'?NECK:WAIST;
+    pos[i]={x:a.x+it.dx,y:a.y+it.dy,w:it.w};
+  }
+  const el=layers[i];
+  world.appendChild(el);place(i);el.style.opacity=1;
+  if(anim){el.classList.remove('drop');void el.offsetWidth;el.classList.add('drop');}
+  worn[it.type]=i;syncTray();
+}
+function takeOff(type){
+  const i=worn[type];if(i===null)return;
+  const el=layers[i];el.style.opacity=0;setTimeout(()=>{if(worn[type]!==i)el.remove();},500);
+  worn[type]=null;syncTray();
+}
+function syncTray(){thumbs.forEach((b,i)=>b.classList.toggle('on',worn[ITEMS[i].type]===i));cards.forEach((c,i)=>c.classList.toggle('worn',worn[ITEMS[i].type]===i));}
+$('#undress').addEventListener('click',()=>{takeOff('top');takeOff('bottom');});
+$('#toRack').addEventListener('click',replayCloset);
+
+/* verschuiven en vergroten van een kledingstuk */
+function bindGestures(el,i){
+  const pts=new Map();let start=null;
+  const snap=()=>{
+    const a=[...pts.values()];
+    const c=a.reduce((s,p)=>({x:s.x+p.x/a.length,y:s.y+p.y/a.length}),{x:0,y:0});
+    const d=a.length>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0;
+    start={c,d,p:{...pos[i]}};
+  };
+  el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});snap();el.style.cursor='grabbing';});
+  el.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const a=[...pts.values()];
+    const c=a.reduce((s,p)=>({x:s.x+p.x/a.length,y:s.y+p.y/a.length}),{x:0,y:0});
+    const p=pos[i];
+    p.x=start.p.x+(c.x-start.c.x)/view.s;p.y=start.p.y+(c.y-start.c.y)/view.s;
+    if(a.length>1&&start.d>0){const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);p.w=Math.max(40,Math.min(400,start.p.w*d/start.d));}
+    place(i);
+  });
+  const up=e=>{pts.delete(e.pointerId);if(pts.size)snap();else el.style.cursor='grab';};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  el.addEventListener('wheel',e=>{e.preventDefault();const p=pos[i];p.w=Math.max(40,Math.min(400,p.w*(e.deltaY<0?1.04:1/1.04)));place(i);},{passive:false});
+}
+</script>
+</body>
+</html>
+
+</body></html>
