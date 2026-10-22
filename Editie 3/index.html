@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De som van alles · Editie 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --papier:#e2e2e2;
+    --inkt:#0b0b0b;
+    --grijs:#6d6d6d;
+    --serif:"Playfair Display", "Didot", "Bodoni 72", Georgia, serif;
+    --sans:"Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);color:var(--inkt);-webkit-font-smoothing:antialiased}
+  [hidden]{display:none !important}
+
+  /* =========================================================
+     DESKTOP — DE KAST
+     ========================================================= */
+  body.desktop{background:#141312;overflow:hidden}
+  .scene{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+  .stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 1936 / 1090));
+    aspect-ratio:1936/1090;
+    transform-origin:50% 60%;
+  }
+  .stage.shake{animation:shake .55s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shake{
+    10%,90%{transform:translate3d(-2px,0,0) rotate(-.15deg)}
+    20%,80%{transform:translate3d(4px,1px,0) rotate(.2deg)}
+    30%,50%,70%{transform:translate3d(-6px,-1px,0) rotate(-.3deg)}
+    40%,60%{transform:translate3d(6px,1px,0) rotate(.3deg)}
+  }
+  .breathe{position:absolute;inset:0;animation:breathe 5s ease-in-out infinite;transform-origin:50% 70%}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(var(--adem,1))}}
+  .warp{position:absolute;inset:0;transition:filter 1.2s ease}
+  .photo{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none}
+  .pieces{position:absolute;inset:0}
+  .piece{
+    position:absolute;
+    transform-origin:50% 50%;
+    filter:drop-shadow(0 .3vw .45vw rgba(0,0,0,.28));
+    pointer-events:none;
+    will-change:transform,opacity;
+  }
+  .piece img{width:100%;height:auto;display:block}
+  .piece.in{animation:val 1s cubic-bezier(.2,.9,.25,1.12) both}
+  @keyframes val{
+    0%{opacity:0;transform:translate(var(--dx,0),-70vh) rotate(calc(var(--r) - 60deg)) scale(1.1)}
+    55%{opacity:1}
+    100%{opacity:1;transform:translate(0,0) rotate(var(--r)) scale(1)}
+  }
+  .piece.uit{animation:weg .7s ease-in forwards}
+  @keyframes weg{to{opacity:0;transform:translateY(-6vh) rotate(var(--r)) scale(.6)}}
+  .vignet{
+    position:absolute;inset:-2px;pointer-events:none;opacity:0;transition:opacity 1.2s ease;
+    background:radial-gradient(ellipse at 50% 55%, transparent 35%, rgba(10,8,6,.35) 78%, rgba(5,4,3,.75) 100%);
+  }
+  .korrel{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:multiply;transition:opacity 1.2s ease}
+
+  /* Intro-titel */
+  .intro{
+    position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:20;
+    transition:opacity 1.4s ease, transform 1.4s ease;
+  }
+  .intro .titel{
+    background:rgba(228,228,228,.97);
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(28px, 5.4vw, 92px);letter-spacing:-.01em;line-height:1;
+    padding:.42em .7em .5em;
+    white-space:nowrap;
+  }
+  .intro.weg{opacity:0;transform:scale(.985)}
+
+  /* Koppel-paneel */
+  .koppel{
+    position:fixed;right:24px;bottom:24px;z-index:15;width:220px;
+    background:var(--papier);padding:18px 18px 14px;
+    box-shadow:0 18px 50px rgba(0,0,0,.45);
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  .koppel.verborgen{opacity:0;transform:translateY(16px);pointer-events:none}
+  .koppel h2{font-family:var(--serif);font-weight:400;font-size:20px;text-transform:uppercase;letter-spacing:.01em;line-height:1.05}
+  .koppel hr{border:0;border-top:1.5px solid var(--inkt);margin:10px 0 12px}
+  .koppel .qr{width:184px;height:184px;background:var(--papier);display:grid;place-items:center}
+  .koppel .qr img,.koppel .qr canvas{width:184px !important;height:184px !important;image-rendering:pixelated}
+  .koppel .code{display:flex;justify-content:space-between;font-size:13px;margin-top:10px}
+  .koppel .code b{font-weight:500;letter-spacing:.18em}
+  .koppel .klein{font-size:11px;color:var(--grijs);line-height:1.35;margin-top:8px}
+  .koppel a{color:var(--inkt)}
+  .koppel .waarschuwing{font-size:11px;line-height:1.35;margin-top:8px;color:#7a2a12}
+
+  .pil{
+    position:fixed;right:24px;bottom:24px;z-index:15;
+    background:var(--papier);border:0;font:13px var(--sans);color:var(--inkt);
+    padding:8px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  .stip{width:8px;height:8px;border-radius:50%;background:#b9b9b9;display:inline-block}
+  .stip.aan{background:#1e8a3c}
+
+  .teller{
+    position:fixed;left:24px;bottom:22px;z-index:15;color:#ece9e4;
+    font-family:var(--serif);font-size:15px;letter-spacing:.02em;opacity:.0;transition:opacity 1s ease;
+    text-shadow:0 1px 8px rgba(0,0,0,.6);
+  }
+  .teller.zicht{opacity:.85}
+  .teller span{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.14em;margin-right:8px;opacity:.75}
+
+  /* =========================================================
+     GSM — DE SOM VAN ALLES
+     ========================================================= */
+  body.gsm{background:var(--papier);min-height:100%;}
+  .bon{
+    max-width:440px;margin:0 auto;min-height:100vh;min-height:100dvh;
+    padding:calc(34px + env(safe-area-inset-top)) 26px calc(40px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;
+  }
+  .bon h1{
+    font-family:var(--serif);font-weight:400;text-transform:uppercase;
+    font-size:clamp(24px, 8.4vw, 40px);letter-spacing:-.005em;line-height:1;text-align:center;white-space:nowrap;
+    margin:6px 0 18px;
+  }
+  .lijn{border:0;border-top:1.5px solid var(--inkt);margin:0}
+  .lijst{list-style:none;padding:14px 0 10px}
+  .rij{
+    display:grid;grid-template-columns:30px 1fr auto;align-items:baseline;
+    font-size:19px;font-weight:300;line-height:1.55;padding:2px 0;
+    cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+    transition:background .2s ease;
+  }
+  .rij .nr{font-weight:300}
+  .rij .naam{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px}
+  .rij .prijs{font-variant-numeric:tabular-nums}
+  .rij.gekocht .naam,.rij.gekocht .prijs,.rij.gekocht .nr{font-weight:600}
+  .rij.wissen{background:rgba(0,0,0,.06)}
+  .rij.nieuw{animation:opduiken .45s ease}
+  @keyframes opduiken{from{opacity:0;transform:translateY(-4px)}}
+  .leeg{font-size:15px;color:var(--grijs);padding:6px 0 4px 30px;font-weight:300}
+
+  .invoer{
+    display:grid;grid-template-columns:30px 1fr 86px 34px;align-items:baseline;gap:0;
+    padding:4px 0 16px;font-size:19px;font-weight:300;
+  }
+  .invoer .nr{color:var(--grijs)}
+  .invoer input{
+    font:inherit;color:var(--inkt);background:transparent;border:0;border-bottom:1px dotted #8c8c8c;
+    padding:2px 0;outline:none;border-radius:0;min-width:0;
+  }
+  .invoer input::placeholder{color:#9a9a9a}
+  .invoer input:focus{border-bottom-color:var(--inkt)}
+  .invoer .bedrag{text-align:right;margin-left:12px}
+  .invoer button{
+    font:300 26px/1 var(--sans);background:none;border:0;color:var(--inkt);cursor:pointer;
+    justify-self:end;padding:0 0 0 8px;
+  }
+
+  .totalen{padding-top:18px}
+  .totaal{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--serif);font-weight:400;font-size:clamp(32px, 10.4vw, 50px);line-height:1;text-transform:uppercase;letter-spacing:-.01em;gap:12px}
+  .sub{display:flex;justify-content:space-between;font-size:clamp(20px, 6.4vw, 28px);font-weight:300;line-height:1.3;margin-top:6px;text-transform:uppercase}
+  .sub + .sub{margin-top:0}
+  .sub.spent{font-weight:400}
+  .getal{font-variant-numeric:tabular-nums}
+  .bump{animation:bump .35s ease}
+  @keyframes bump{40%{transform:scale(1.06)}}
+
+  .barcode{margin-top:22px;width:100%}
+  .barcode svg{display:block;width:100%;height:auto}
+  .barcode .cijfers{font-size:clamp(15px,5.3vw,25px);font-weight:300;letter-spacing:0;margin-top:-6px;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums}
+
+  .voet{margin-top:auto;padding-top:30px;font-size:11px;color:var(--grijs);line-height:1.5;display:flex;justify-content:space-between;gap:12px;align-items:flex-end}
+  .voet button{font:inherit;color:var(--grijs);background:none;border:0;text-decoration:underline;cursor:pointer;padding:0}
+  .status{display:flex;align-items:center;gap:6px;white-space:nowrap}
+
+  .geenkamer{font-size:15px;line-height:1.5;font-weight:300;padding-top:20px}
+  .geenkamer input{font:inherit;letter-spacing:.2em;text-transform:uppercase;width:120px;background:transparent;border:0;border-bottom:1px solid var(--inkt);padding:4px 0;outline:none}
+  .geenkamer button{font:inherit;background:var(--inkt);color:var(--papier);border:0;padding:6px 14px;margin-left:8px;cursor:pointer}
+
+  @media (prefers-reduced-motion: reduce){
+    .piece.in,.piece.uit,.stage.shake,.breathe{animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= DESKTOP ======================= -->
+<section id="desktop" hidden>
+  <div class="scene">
+    <div class="stage" id="stage">
+      <div class="breathe" id="breathe">
+        <div class="warp" id="warp">
+          <img class="photo" src="img/kast.jpg" alt="Een kleerkast met open deuren, gevuld met kleding">
+          <div class="pieces" id="pieces"></div>
+          <svg class="korrel" id="korrel" width="100%" height="100%"><filter id="ruis"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .45  0 0 0 0 .4  0 0 0 .55 0"/></filter><rect width="100%" height="100%" filter="url(#ruis)"/></svg>
+        </div>
+      </div>
+      <div class="vignet" id="vignet"></div>
+    </div>
+  </div>
+
+  <!-- vervormingsfilter: wordt sterker naarmate er meer gekocht wordt -->
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="dichtslibben" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap id="disp" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <div class="intro" id="intro"><div class="titel">De OVERVOLLE kleerenkast</div></div>
+
+  <aside class="koppel verborgen" id="koppel">
+    <h2>Scan met<br>je gsm</h2>
+    <hr>
+    <div class="qr" id="qr"></div>
+    <div class="code"><span>kamer</span><b id="kamercode">—</b></div>
+    <p class="klein" id="koppeluitleg">Elk item dat je op je gsm vetgedrukt zet, belandt in deze kast.</p>
+    <p class="klein"><a href="#" id="openhier">gsm-versie openen in een nieuw venster</a></p>
+    <p class="waarschuwing" id="lokaalwaarschuwing" hidden>Deze pagina draait nu lokaal op je computer, dus je gsm kan de QR-link niet openen. Zet de map online (bv. Netlify Drop of GitHub Pages) om te koppelen. Testen in twee vensters werkt wel.</p>
+  </aside>
+  <button class="pil" id="pil" hidden><span class="stip" id="pilstip"></span><span id="piltekst">gsm verbonden</span></button>
+
+  <div class="teller" id="teller"><span>spent</span><b id="tellerbedrag">0,00</b></div>
+</section>
+
+<!-- ======================= GSM ======================= -->
+<section id="gsm" hidden>
+  <main class="bon">
+    <h1>De som van alles</h1>
+    <hr class="lijn">
+
+    <div id="metkamer">
+      <ol class="lijst" id="lijst"></ol>
+      <form class="invoer" id="invoer" autocomplete="off">
+        <span class="nr" id="volgnr">1.</span>
+        <input id="inNaam" placeholder="nieuw item" maxlength="40" enterkeyhint="next" aria-label="Naam van het item">
+        <input id="inPrijs" class="bedrag" placeholder="0,00" inputmode="decimal" enterkeyhint="done" aria-label="Prijs in euro">
+        <button type="submit" aria-label="Toevoegen">+</button>
+      </form>
+      <hr class="lijn">
+
+      <div class="totalen">
+        <div class="totaal"><span>Totaal</span><span class="getal" id="totaal">+0,00</span></div>
+        <div class="sub"><span>Saved</span><span class="getal" id="saved">0,00</span></div>
+        <div class="sub spent"><span>Spent</span><span class="getal" id="spent">0,00</span></div>
+      </div>
+
+      <div class="barcode" aria-hidden="true">
+        <svg id="streepjes" viewBox="0 0 540 180" preserveAspectRatio="none"></svg>
+        <div class="cijfers" id="cijfers">0 335 000001 00000000000</div>
+      </div>
+    </div>
+
+    <div class="geenkamer" id="geenkamer" hidden>
+      <p>Scan de QR-code op het grote scherm, of typ de kamercode die daar staat.</p>
+      <p style="margin-top:14px"><input id="inKamer" maxlength="6" placeholder="code"><button id="kamerOk">koppel</button></p>
+    </div>
+
+    <div class="voet">
+      <span>tik = gekocht / niet gekocht<br>lang drukken = wissen</span>
+      <span class="status"><span class="stip" id="gsmstip"></span><span id="gsmstatus">niet verbonden</span></span>
+    </div>
+    <div class="voet" style="padding-top:8px;margin-top:0"><button id="alleswissen">lijst leegmaken</button><span></span></div>
+  </main>
+</section>
+
+<script>
+/* =====================================================================
+   GEDEELDE HULPMIDDELEN
+   ===================================================================== */
+const PREFIX = 'editie3-';
+const params = new URLSearchParams(location.search);
+const isGsm = params.has('gsm');
+
+const opslag = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const euro = n => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
+const leesPrijs = s => { const n = parseFloat(String(s).replace(/\s|€/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',', '.')); return isFinite(n) && n >= 0 ? n : NaN; };
+function sommen(items){
+  let spent = 0, saved = 0;
+  items.forEach(it => it.gekocht ? spent += it.prijs : saved += it.prijs);
+  return { spent, saved, totaal: saved - spent };
+}
+function nieuweKamer(){
+  const t = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = '';
+  for(let i = 0; i < 5; i++) s += t[Math.floor(Math.random() * t.length)];
+  return s;
+}
+// deterministische toevalsgenerator: elk kledingstuk landt telkens op dezelfde plek
+function rng(seed){
+  let h = 1779033703 ^ seed.length;
+  for(let i = 0; i < seed.length; i++){ h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  return function(){ h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+}
+
+/* =====================================================================
+   DESKTOP — DE KAST
+   ===================================================================== */
+function startDesktop(){
+  document.body.classList.add('desktop');
+  document.getElementById('desktop').hidden = false;
+
+  // ---------- kamer & koppeling ----------
+  let kamer = (params.get('kamer') || opslag.get(PREFIX+'kamer', '') || '').toUpperCase();
+  if(!kamer){ kamer = nieuweKamer(); }
+  opslag.set(PREFIX+'kamer', kamer);
+  document.getElementById('kamercode').textContent = kamer;
+
+  const basis = location.href.split('#')[0].split('?')[0];
+  const gsmUrl = basis + '?gsm=' + kamer;
+  if(window.QRCode){
+    new QRCode(document.getElementById('qr'), { text: gsmUrl, width: 368, height: 368, colorDark:'#0b0b0b', colorLight:'#e2e2e2', correctLevel: QRCode.CorrectLevel.M });
+  } else {
+    document.getElementById('qr').textContent = gsmUrl;
+  }
+  if(location.protocol === 'file:'){ document.getElementById('lokaalwaarschuwing').hidden = false; }
+  document.getElementById('openhier').addEventListener('click', e => { e.preventDefault(); window.open(gsmUrl, 'editie3gsm', 'width=420,height=860'); });
+
+  // ---------- kledingstukken (uitgesneden uit de foto zelf) ----------
+  const STUKKEN = [
+    {src:'img/roze-hemd.png',     soort:'hang', w:6.6},
+    {src:'img/wit-hemd.png',      soort:'hang', w:6.9},
+    {src:'img/streep-trui.png',   soort:'hang', w:3.7},
+    {src:'img/kanten-blouse.png', soort:'hang', w:6.7},
+    {src:'img/blauwe-trui.png',   soort:'stapel', w:13.6},
+    {src:'img/witte-stapel.png',  soort:'stapel', w:10.7},
+    {src:'img/linker-stapel.png', soort:'stapel', w:17},
+    {src:'img/jeans.png',         soort:'stapel', w:19},
+    {src:'img/zwarte-satijn.png', soort:'stapel', w:9.8},
+    {src:'img/camo.png',          soort:'stapel', w:13.5},
+    {src:'img/beige.png',         soort:'stapel', w:12.5},
+    {src:'img/roze-hoed.png',     soort:'stapel', w:11.5},
+  ];
+  STUKKEN.forEach(s => { const i = new Image(); i.src = s.src; });
+
+  // Zones in % van de foto. 'vanaf' = na hoeveel stukken in totaal deze zone opengaat.
+  // Zo vult de kast zich eerst op de planken, dan aan de roede, dan op de vloer,
+  // dan over de deuren en uiteindelijk over het hele beeld.
+  const ZONES = [
+    {naam:'bovenplank',   x:[23,51], y:[16,33], soort:'stapel', rot:10, vanaf:0},
+    {naam:'plank-rechts', x:[58,82], y:[27,39], soort:'stapel', rot:10, vanaf:0},
+    {naam:'vak-rechts',   x:[58,83], y:[50,70], soort:'stapel', rot:14, vanaf:0},
+    {naam:'roede',        x:[24,51], y:[44,60], soort:'hang',   rot:6,  vanaf:5,  anker:'boven'},
+    {naam:'op-laden',     x:[57,84], y:[70,78], soort:'stapel', rot:18, vanaf:8},
+    {naam:'vloer',        x:[4,96],  y:[86,100],soort:'alles',  rot:90, vanaf:13},
+    {naam:'deur-links',   x:[3,19],  y:[20,70], soort:'hang',   rot:14, vanaf:22, anker:'boven'},
+    {naam:'deur-rechts',  x:[86,98], y:[20,70], soort:'hang',   rot:14, vanaf:22, anker:'boven'},
+    {naam:'overal',       x:[-6,104],y:[-6,104],soort:'alles',  rot:180,vanaf:32},
+  ];
+
+  const laag = document.getElementById('pieces');
+  const geplaatst = new Map(); // sleutel -> element
+  let aantalOoit = 0;           // telt mee voor welke zones openstaan
+  let vorigeSpent = 0;
+
+  function aantalStukken(prijs){
+    if(prijs <= 0) return 0;
+    return Math.max(1, Math.min(18, Math.round(Math.sqrt(prijs) / 2.4)));
+  }
+
+  function plaats(sleutel, indexGlobaal, niveau){
+    const r = rng(sleutel);
+    const open = ZONES.filter(z => indexGlobaal >= z.vanaf);
+    // nieuwste zones krijgen meer gewicht: de rommel kruipt naar buiten
+    const gewichten = open.map((z, i) => 1 + i * 0.9);
+    let t = r() * gewichten.reduce((a,b) => a+b, 0), zone = open[0];
+    for(let i = 0; i < open.length; i++){ t -= gewichten[i]; if(t <= 0){ zone = open[i]; break; } }
+
+    const kandidaten = STUKKEN.filter(s => zone.soort === 'alles' || s.soort === zone.soort);
+    const stuk = kandidaten[Math.floor(r() * kandidaten.length)];
+    const schaal = (0.85 + r() * 0.35) * (1 + niveau * 0.3);
+    const breedte = stuk.w * schaal;
+    const cx = zone.x[0] + r() * (zone.x[1] - zone.x[0]);
+    const cy = zone.y[0] + r() * (zone.y[1] - zone.y[0]);
+    let rot = (r() * 2 - 1) * zone.rot;
+    if(zone.naam === 'vloer' && stuk.soort === 'hang') rot = (r() < .5 ? -1 : 1) * (70 + r() * 30);
+
+    const el = document.createElement('div');
+    el.className = 'piece in';
+    el.style.width = breedte + '%';
+    el.style.left = (cx - breedte / 2) + '%';
+    el.style.top = zone.anker === 'boven' ? cy - 6 + '%' : (cy - breedte * 0.35) + '%';
+    el.style.setProperty('--r', rot.toFixed(1) + 'deg');
+    el.style.setProperty('--dx', ((r() * 2 - 1) * 8).toFixed(1) + 'vw');
+    el.style.animationDelay = (r() * 0.25).toFixed(2) + 's';
+    el.style.zIndex = String(10 + indexGlobaal);
+    const img = document.createElement('img'); img.src = stuk.src; img.alt = '';
+    el.appendChild(img);
+    laag.appendChild(el);
+    return el;
+  }
+
+  function teken(items){
+    const { spent } = sommen(items);
+    const niveau = 1 - Math.exp(-spent / 400); // 0 = originele kast, →1 = dichtgeslibd
+
+    // 1. welke stukken horen er nu te zijn?
+    const gewenst = [];
+    items.filter(it => it.gekocht).forEach(it => {
+      const n = aantalStukken(it.prijs);
+      for(let k = 0; k < n; k++) gewenst.push(it.id + ':' + k);
+    });
+    const gewenstSet = new Set(gewenst);
+
+    // 2. weg met wat niet meer gekocht is
+    for(const [sleutel, el] of geplaatst){
+      if(!gewenstSet.has(sleutel)){
+        geplaatst.delete(sleutel);
+        el.classList.remove('in'); el.classList.add('uit');
+        el.addEventListener('animationend', () => el.remove(), { once:true });
+        setTimeout(() => el.remove(), 900);
+      }
+    }
+    if(geplaatst.size === 0) aantalOoit = 0;
+
+    // 3. erbij wat nieuw gekocht is
+    let nieuw = 0;
+    gewenst.forEach(sleutel => {
+      if(!geplaatst.has(sleutel)){
+        geplaatst.set(sleutel, plaats(sleutel, Math.max(aantalOoit, geplaatst.size), niveau));
+        aantalOoit++; nieuw++;
+      }
+    });
+
+    // 4. de foto zelf: vervorming, sfeer, vignet, korrel, ademen
+    const warp = document.getElementById('warp');
+    const dispScale = niveau > 0.3 ? ((niveau - 0.3) / 0.7) * 13 : 0;
+    document.getElementById('disp').setAttribute('scale', dispScale.toFixed(1));
+    const kleur = `saturate(${(1 - niveau * 0.3).toFixed(2)}) contrast(${(1 + niveau * 0.12).toFixed(2)}) brightness(${(1 - niveau * 0.08).toFixed(2)})`;
+    warp.style.filter = (dispScale > 0 ? 'url(#dichtslibben) ' : '') + (niveau > 0.01 ? kleur : 'none');
+    document.getElementById('vignet').style.opacity = (niveau * 0.8).toFixed(2);
+    document.getElementById('korrel').style.opacity = (Math.max(0, niveau - 0.4) * 0.6).toFixed(2);
+    document.getElementById('breathe').style.setProperty('--adem', (1 + Math.max(0, niveau - 0.5) * 0.035).toFixed(4));
+
+    if(nieuw > 0 && spent > vorigeSpent){
+      const st = document.getElementById('stage');
+      st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake');
+    }
+    vorigeSpent = spent;
+
+    const teller = document.getElementById('teller');
+    document.getElementById('tellerbedrag').textContent = '€ ' + euro(spent);
+    teller.classList.toggle('zicht', spent > 0);
+  }
+
+  // ---------- ontvangen van de gsm ----------
+  let items = opslag.get(PREFIX+'laatste', []);
+  let verbonden = 0;
+  function ontvang(bericht){
+    if(!bericht || bericht.type !== 'staat' || !Array.isArray(bericht.items)) return;
+    items = bericht.items;
+    opslag.set(PREFIX+'laatste', items);
+    teken(items);
+  }
+  function zetVerbonden(n){
+    verbonden = n;
+    const pil = document.getElementById('pil');
+    document.getElementById('pilstip').classList.toggle('aan', n > 0);
+    document.getElementById('piltekst').textContent = n > 0 ? 'gsm verbonden' : 'koppel een gsm';
+    if(n > 0 && introKlaar){ document.getElementById('koppel').classList.add('verborgen'); pil.hidden = false; }
+  }
+
+  // a) zelfde browser (twee vensters): BroadcastChannel
+  try{
+    const bc = new BroadcastChannel(PREFIX + kamer);
+    bc.onmessage = e => { if(e.data && (e.data.type === 'hallo' || e.data.type === 'staat')){ if(verbonden === 0) zetVerbonden(1); bc.postMessage({ type:'ack' }); } ontvang(e.data); };
+  }catch(e){}
+
+  // b) echte gsm: WebRTC via PeerJS
+  const verbindingen = new Set();
+  function startHost(){
+    if(!window.Peer) return;
+    const peer = new Peer(PREFIX + kamer, { debug: 0 });
+    peer.on('connection', c => {
+      c.on('open', () => { verbindingen.add(c); zetVerbonden(verbindingen.size); });
+      c.on('data', ontvang);
+      const sluit = () => { verbindingen.delete(c); zetVerbonden(verbindingen.size); };
+      c.on('close', sluit); c.on('error', sluit);
+    });
+    peer.on('disconnected', () => { try{ peer.reconnect(); }catch(e){} });
+    peer.on('error', err => {
+      if(err.type === 'unavailable-id'){ peer.destroy(); setTimeout(startHost, 4000); }
+      else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){ peer.destroy(); setTimeout(startHost, 5000); }
+    });
+  }
+  startHost();
+
+  // ---------- intro ----------
+  let introKlaar = false;
+  teken(items);
+  setTimeout(() => {
+    document.getElementById('intro').classList.add('weg');
+    setTimeout(() => {
+      introKlaar = true;
+      document.getElementById('intro').hidden = true;
+      if(verbonden > 0){ document.getElementById('pil').hidden = false; }
+      else document.getElementById('koppel').classList.remove('verborgen');
+    }, 1400);
+  }, 3200);
+
+  document.getElementById('pil').addEventListener('click', () => {
+    document.getElementById('koppel').classList.toggle('verborgen');
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'h' || e.key === 'H'){ document.getElementById('koppel').classList.toggle('verborgen'); }
+    if(e.key === 'f' || e.key === 'F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+  });
+}
+
+/* =====================================================================
+   GSM — DE SOM VAN ALLES
+   ===================================================================== */
+function startGsm(){
+  document.body.classList.add('gsm');
+  document.getElementById('gsm').hidden = false;
+
+  const kamer = (params.get('gsm') || '').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!kamer){
+    document.getElementById('metkamer').hidden = true;
+    document.getElementById('geenkamer').hidden = false;
+    document.getElementById('kamerOk').addEventListener('click', () => {
+      const c = document.getElementById('inKamer').value.trim().toUpperCase();
+      if(c) location.search = '?gsm=' + encodeURIComponent(c);
+    });
+    return;
+  }
+
+  let items = opslag.get(PREFIX+'items', []);
+  const lijst = document.getElementById('lijst');
+
+  function bewaarEnStuur(){ opslag.set(PREFIX+'items', items); stuur(); }
+
+  function render(nieuwId){
+    lijst.innerHTML = '';
+    if(items.length === 0){
+      const p = document.createElement('li'); p.className = 'leeg'; p.textContent = 'nog niets op je lijstje';
+      lijst.appendChild(p);
+    }
+    items.forEach((it, i) => {
+      const li = document.createElement('li');
+      li.className = 'rij' + (it.gekocht ? ' gekocht' : '') + (it.id === nieuwId ? ' nieuw' : '');
+      li.innerHTML = `<span class="nr">${i + 1}.</span><span class="naam"></span><span class="prijs">${euro(it.prijs)}</span>`;
+      li.querySelector('.naam').textContent = it.naam;
+      li.setAttribute('role','button');
+      li.setAttribute('aria-pressed', it.gekocht ? 'true' : 'false');
+      li.setAttribute('aria-label', `${it.naam}, ${euro(it.prijs)} euro, ${it.gekocht ? 'gekocht' : 'niet gekocht'}`);
+
+      let timer = null, lang = false;
+      const start = () => { lang = false; timer = setTimeout(() => {
+        lang = true; li.classList.add('wissen');
+        if(navigator.vibrate) navigator.vibrate(15);
+        setTimeout(() => {
+          if(confirm(`"${it.naam}" van de lijst wissen?`)){ items = items.filter(x => x.id !== it.id); bewaarEnStuur(); render(); }
+          else li.classList.remove('wissen');
+        }, 30);
+      }, 600); };
+      const stop = () => clearTimeout(timer);
+      li.addEventListener('pointerdown', start);
+      li.addEventListener('pointerup', stop);
+      li.addEventListener('pointerleave', stop);
+      li.addEventListener('pointercancel', stop);
+      li.addEventListener('contextmenu', e => e.preventDefault());
+      li.addEventListener('click', () => {
+        if(lang) return;
+        it.gekocht = !it.gekocht;
+        bewaarEnStuur(); render();
+      });
+      lijst.appendChild(li);
+    });
+    document.getElementById('volgnr').textContent = (items.length + 1) + '.';
+    renderTotalen();
+  }
+
+  let vorige = null;
+  function renderTotalen(){
+    const s = sommen(items);
+    const zet = (id, txt) => { const el = document.getElementById(id); if(el.textContent !== txt){ el.textContent = txt; if(vorige){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } } };
+    zet('totaal', (s.totaal >= 0 ? '+' : '−') + euro(Math.abs(s.totaal)));
+    zet('saved', euro(s.saved));
+    zet('spent', euro(s.spent));
+    renderBarcode(s);
+    vorige = s;
+  }
+
+  // streepjescode die meeverandert met je bedragen
+  function renderBarcode(s){
+    const c = String(Math.round(s.saved * 100)).padStart(6,'0').slice(-6) + String(Math.round(s.spent * 100)).padStart(5,'0').slice(-5);
+    document.getElementById('cijfers').textContent = '0 335 ' + String(items.length).padStart(6,'0') + ' ' + c;
+    const r = rng('bon' + c + items.length);
+    let x = 4, svg = '';
+    while(x < 530){
+      const w = 1 + Math.floor(r() * 4.2);
+      const lang = r() < 0.12;
+      svg += `<rect x="${x}" y="0" width="${w}" height="${lang ? 180 : 160}" fill="#0b0b0b"/>`;
+      x += w + 1 + Math.floor(r() * 3.5);
+    }
+    document.getElementById('streepjes').innerHTML = svg;
+  }
+
+  // nieuw item toevoegen
+  document.getElementById('invoer').addEventListener('submit', e => {
+    e.preventDefault();
+    const n = document.getElementById('inNaam'), p = document.getElementById('inPrijs');
+    const naam = n.value.trim(), prijs = leesPrijs(p.value);
+    if(!naam){ n.focus(); return; }
+    if(isNaN(prijs)){ p.focus(); return; }
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    items.push({ id, naam, prijs: Math.round(prijs * 100) / 100, gekocht: false });
+    n.value = ''; p.value = '';
+    bewaarEnStuur(); render(id);
+    n.focus();
+  });
+  document.getElementById('inNaam').addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('inPrijs').focus(); }
+  });
+  document.getElementById('alleswissen').addEventListener('click', () => {
+    if(items.length && confirm('De hele lijst leegmaken?')){ items = []; bewaarEnStuur(); render(); }
+  });
+
+  // ---------- versturen naar de kast ----------
+  const zetStatus = aan => {
+    document.getElementById('gsmstip').classList.toggle('aan', aan);
+    document.getElementById('gsmstatus').textContent = aan ? 'verbonden met kast ' + kamer : 'zoekt kast ' + kamer + '…';
+  };
+  zetStatus(false);
+
+  let bc = null;
+  try{ bc = new BroadcastChannel(PREFIX + kamer); bc.onmessage = e => { if(e.data && e.data.type === 'ack') zetStatus(true); }; bc.postMessage({ type:'hallo' }); }catch(e){}
+
+  let conn = null, peer = null;
+  function stuur(){
+    const bericht = { type:'staat', items };
+    if(bc) bc.postMessage(bericht);
+    if(conn && conn.open){ try{ conn.send(bericht); }catch(e){} }
+  }
+  function verbind(){
+    if(!peer || peer.destroyed || peer.disconnected) return;
+    conn = peer.connect(PREFIX + kamer, { reliable: true });
+    conn.on('open', () => { zetStatus(true); stuur(); });
+    conn.on('close', () => { zetStatus(false); setTimeout(verbind, 2000); });
+    conn.on('error', () => { zetStatus(false); });
+  }
+  function startPeer(){
+    if(!window.Peer){ return; }
+    peer = new Peer({ debug: 0 });
+    peer.on('open', verbind);
+    peer.on('disconnected', () => { try{ peer.reconnect(); }catch(e){} });
+    peer.on('error', err => {
+      zetStatus(false);
+      if(err.type === 'peer-unavailable'){ setTimeout(verbind, 2500); }
+      else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){ try{ peer.destroy(); }catch(e){} setTimeout(startPeer, 4000); }
+    });
+  }
+  startPeer();
+  // vangnet: stuur de staat regelmatig opnieuw (bv. als de kast herladen werd)
+  setInterval(stuur, 4000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) stuur(); });
+
+  render();
+  stuur();
+}
+
+if(isGsm) startGsm(); else startDesktop();
+</script>
+<script src="../menu/menu.js" defer></script>
+</body>
+</html>

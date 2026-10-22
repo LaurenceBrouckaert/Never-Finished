@@ -1,265 +1,275 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Koopverbod</title>
-<!-- Bodoni 72 Oldstyle staat alleen op Apple-apparaten; Bodoni Moda is de webfallback -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&display=swap" rel="stylesheet">
 <style>
-:root{
-  --white:#e4e4e4;
-  --black:#000;
-  --green:#a8f999;
-  --blue:#9db5c7;
-  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
-  --serif:"Bodoni 72 Oldstyle","Bodoni 72","Bodoni Moda","Bodoni MT",Didot,serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}          /* geen scroll */
-body{background:var(--blue);color:var(--black);font-family:var(--serif)}
-[hidden]{display:none !important}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-
-.outline{
-  font-family:var(--sans);font-weight:700;font-style:italic;
-  color:var(--white);-webkit-text-stroke:1px #333;text-transform:uppercase;
-}
-
-/* ---------- SCHERM 1: lijst (past exact in het scherm) ---------- */
-#home{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-.hero{
-  flex:0 0 31dvh;background:var(--blue);
-  padding:0 4vw 3dvh;
-  display:grid;grid-template-columns:auto 1fr;align-items:end;align-content:end;column-gap:2vw;row-gap:.2em;
-}
-.hero h1{grid-column:1/-1;font-size:min(9.5vw,14dvh);line-height:.95}
-.play{
-  grid-column:1;font-size:clamp(.8rem,1.6vw,1.4rem);text-transform:uppercase;letter-spacing:.02em;
-  text-align:left;text-decoration:underline;text-underline-offset:.2em;
-}
-.play:hover,.play:focus-visible{color:#fff;background:var(--black);outline:none}
-.tag{font-size:clamp(.8rem,1.6vw,1.4rem);justify-self:end;text-align:right}
-
-.list{list-style:none;flex:1;min-height:0;display:flex;flex-direction:column}
-.row{
-  position:relative;flex:1 1 0;min-height:0;background:var(--white);
-  border-top:1px solid #555;
-  font-family:var(--sans);font-weight:700;text-transform:uppercase;
-  font-size:min(5.4vw,7.2dvh);line-height:1;cursor:pointer;
-  padding:0 1.2vw;display:flex;align-items:center;
-}
-.row:last-child{border-bottom:1px solid #555}
-.row::before{
-  content:"";position:absolute;left:0;right:0;top:0;bottom:0;background:var(--black);
-  opacity:0;transition:top .15s,bottom .15s,opacity .15s;
-}
-.row .inner{position:relative;display:flex;align-items:center;gap:.5em;width:100%}
-.row .word{white-space:nowrap}
-.row .meta{
-  display:none;font-family:var(--serif);font-weight:400;text-transform:none;
-  font-size:max(.55rem,.2em);line-height:1.15;color:var(--green);max-width:14em;
-}
-.row .meta b{display:block;font-weight:400}
-
-.row:nth-child(1) .inner{justify-content:flex-start}
-.row:nth-child(2) .inner{justify-content:flex-end}
-.row:nth-child(3) .inner{justify-content:flex-start;padding-left:22%}
-.row:nth-child(4) .inner{justify-content:flex-start}
-.row:nth-child(5) .inner{justify-content:flex-start;padding-left:27%}
-.row:nth-child(3) .word,.row:nth-child(5) .word{order:1}
-
-.row:hover,.row:focus-visible,.row.open{z-index:2;color:var(--green);outline:none}
-.row:hover::before,.row:focus-visible::before,.row.open::before{top:-.25em;bottom:-.25em;opacity:1}
-.row:hover .meta,.row:focus-visible .meta,.row.open .meta{display:block}
-
-/* ---------- SCHERM 2: kruiswoordraadsel ---------- */
-#game{
-  --cell:min(9.4vw,6.4dvh);
-  height:100dvh;overflow:hidden;background:var(--blue);position:relative;
-  padding:5dvh 4vw 2dvh;
-  display:grid;grid-template-columns:1fr;grid-template-rows:auto auto minmax(0,1fr);
-  gap:2.5dvh;justify-items:center;align-content:center;
-}
-.back{
-  position:absolute;top:1.4dvh;left:3vw;font-size:clamp(.8rem,1.5vw,1.2rem);
-  text-decoration:underline;text-underline-offset:.2em;
-}
-.back:hover,.back:focus-visible{color:#fff;background:var(--black);outline:none}
-.grid{display:grid;grid-template-columns:repeat(9,var(--cell));grid-template-rows:repeat(7,var(--cell))}
-.cell{
-  background:var(--white);border:1px solid #333;position:relative;
-}
-.cell.active{background:#fff}
-.cell input{
-  width:100%;height:100%;border:0;background:transparent;outline:none;
-  text-align:center;text-transform:uppercase;caret-color:var(--black);
-  font-family:var(--sans);font-weight:700;color:var(--green);
-  font-size:calc(var(--cell)*.8);line-height:1;padding:0;border-radius:0;
-}
-.cell input:focus{background:rgba(0,0,0,.08)}
-.side{width:min(100%,92vw);min-height:0}
-.side h2{font-size:min(7.2vw,4.6dvh);line-height:1;margin-bottom:.4em}
-.excuses{
-  background:var(--white);border:1px solid #555;padding:3vw;
-  font-size:min(3.4vw,2.2dvh);line-height:1.1;
-}
-.excuses p+p{margin-top:.7em}
-.status{margin-top:1.2dvh;font-size:min(4vw,2.6dvh);min-height:1.2em;color:#fff;text-shadow:0 0 1px #000}
-
-@media (min-width:800px){
-  #game{
-    --cell:min(5.4vw,11dvh);
-    grid-template-columns:auto minmax(0,1fr);grid-template-rows:none;
-    justify-items:start;align-items:center;gap:4vw;padding:4dvh 4vw;
+  :root{
+    --black:#000000;
+    --green:#caf0ce;
+    --beige:#e2e2e2;
+    --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    /* 1 eenheid = 1% van een 16:9 kader dat altijd in het scherm past */
+    --u:min(1vw, 1.7778vh);
   }
-  .side{width:100%}
-  .side h2{font-size:min(3.4vw,8dvh)}
-  .excuses{padding:1.6vw;font-size:min(1.6vw,3dvh)}
-  .status{font-size:min(2vw,3.4dvh)}
-}
-@media (max-width:799px){
-  .row{font-size:min(6.4vw,5.6dvh)}
-  .row:nth-child(3) .inner,.row:nth-child(5) .inner{padding-left:0}
-  .row:nth-child(2) .inner{justify-content:flex-start;padding-left:6%}
-  .row .inner{flex-wrap:wrap;gap:.2em .5em}
-  .row .meta{font-size:max(.7rem,.22em)}
-  .row .word{order:0 !important}.row .meta{order:1 !important}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--beige);color:var(--black)}
+  body{font-family:var(--serif);-webkit-font-smoothing:antialiased;touch-action:manipulation}
+
+  .screen{position:fixed;inset:0;height:100vh;height:100dvh;width:100vw;display:none;overflow:hidden;background:var(--beige)}
+  .screen.active{display:block}
+
+  .link{font-family:var(--serif);font-weight:400;background:none;border:0;color:var(--black);
+        text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px;cursor:pointer}
+  .link:hover{opacity:.6}
+
+  /* ---------- STARTPAGINA ---------- */
+  .band{position:absolute;left:0;right:0;top:0;height:29.7%;background:var(--green);
+        border:1px solid var(--black);overflow:hidden}
+  .band h1{position:absolute;left:-.4%;top:50%;transform:translateY(-50%);
+        font-family:var(--sans);font-weight:700;font-size:calc(var(--u)*15.1);line-height:1;
+        letter-spacing:-.005em;white-space:nowrap;color:var(--beige);
+        -webkit-text-stroke:max(1px, calc(var(--u)*.09)) var(--black)}
+  .intro{position:absolute;left:5.3%;top:42%;width:28%;
+        font-size:calc(var(--u)*2.75);line-height:1.02;text-transform:uppercase}
+  .start-match{position:absolute;left:5.3%;bottom:9.5%;font-size:calc(var(--u)*2.75);padding:0}
+  .excuses{position:absolute;left:40%;right:3%;top:41%;bottom:9%;list-style:none;
+        display:flex;flex-direction:column;justify-content:space-between}
+  .excuses li{display:flex;align-items:baseline;font-size:calc(var(--u)*2.3);line-height:1.15}
+  .excuses .n{font-family:var(--sans);font-weight:400;font-size:.82em;width:5.5em;flex:none}
+  .page{position:absolute;inset:29.7% 0 0 0;border:1px solid var(--black);border-top:0;pointer-events:none}
+
+  /* ---------- MATCHPAGINA ---------- */
+  .rows{position:absolute;inset:0;display:grid;grid-template-rows:repeat(5,1fr)}
+  .row{position:relative;display:flex;align-items:center;border:1px solid var(--black);
+       margin-top:-1px;background:var(--beige);transition:background-color .45s ease}
+  .row:first-child{margin-top:0}
+  .row.solved{background:var(--green)}
+  .row.l1{padding-left:3.1%}
+  .row.r2{justify-content:flex-end;padding-right:2.2%}
+  .row.l3{padding-left:14.7%}
+  .row.r4{justify-content:flex-end;padding-right:3.3%}
+  .row.l5{padding-left:3.1%}
+
+  .word{position:relative;display:inline-block;font-family:var(--sans);font-weight:700;
+        font-size:calc(var(--u)*6.65);line-height:1;letter-spacing:-.005em;white-space:nowrap}
+
+  .num{position:absolute;top:-.12em;width:calc(var(--u)*1.7);
+       font-family:var(--serif);font-size:calc(var(--u)*2.2);line-height:1.1;text-align:center;
+       background:transparent;border:0;border-bottom:max(1.5px, calc(var(--u)*.12)) solid var(--black);
+       border-radius:0;color:var(--black);outline:none;padding:0;-webkit-appearance:none;appearance:none}
+  .num:focus{border-bottom-color:var(--black);background:rgba(202,240,206,.55)}
+  .after .num{left:calc(100% + var(--u)*1.7)}
+  .before .num{right:calc(100% + var(--u)*1.9)}
+  .num.wrong{animation:shake .4s ease}
+  @keyframes shake{20%,60%{transform:translateX(-25%)}40%,80%{transform:translateX(25%)}}
+
+  .note{position:absolute;top:50%;transform:translateY(-50%);white-space:nowrap;
+        font-family:var(--serif);font-weight:400;font-size:calc(var(--u)*1.75);line-height:2.05;
+        letter-spacing:-.01em;opacity:0;pointer-events:none;transition:opacity .45s ease .1s}
+  .note span{display:block}
+  .after .note{left:calc(100% + var(--u)*1.4)}
+  .before .note{right:calc(100% + var(--u)*1.4);text-align:right;line-height:1.45}
+  .row.solved .note{opacity:1}
+  .row.solved .num{display:none}
+
+  .review{position:absolute;right:1.9%;bottom:3.4%;font-size:calc(var(--u)*2.1);padding:0;z-index:2}
+  .saved{position:absolute;right:2.1%;top:1.6%;font-size:calc(var(--u)*2.1);padding:0;z-index:2;display:none}
+  .again{position:absolute;right:1.9%;bottom:3.4%;font-size:calc(var(--u)*2.1);padding:0;z-index:6;display:none}
+  .done .review{display:none}
+  .done .saved{display:block}
+  .done .again{display:block}
+
+  /* ---------- RESULTAAT ---------- */
+  .result{position:absolute;left:12.4%;right:12.1%;top:11.8%;bottom:12.8%;background:var(--black);
+          display:none;flex-direction:column;align-items:center;justify-content:center;z-index:5;
+          cursor:pointer;opacity:0;transform:scale(.97);transition:opacity .5s ease,transform .5s ease}
+  .result.show{display:flex}
+  .result.in{opacity:1;transform:none}
+  .result .big{font-family:var(--sans);font-weight:700;color:var(--beige);line-height:.9;letter-spacing:-.01em}
+  .result .g{font-size:calc(var(--u)*11.3)}
+  .result .amount{font-family:var(--serif);color:var(--green);font-size:calc(var(--u)*22.5);
+                  line-height:.95;letter-spacing:-.02em;margin-top:calc(var(--u)*-.6)}
+  .result .bottom{display:flex;align-items:baseline;justify-content:space-between;width:84%;margin-top:calc(var(--u)*.4)}
+  .result .u{font-size:calc(var(--u)*6.3)}
+  .result .spent{font-family:var(--serif);color:var(--green);font-size:calc(var(--u)*6.3);line-height:1}
+
+  /* ---------- GSM / SMAL SCHERM ---------- */
+  @media (max-width:760px) and (orientation:portrait){
+    .band{height:22%}
+    .band h1{font-size:23vw}
+    .intro{left:6%;right:6%;width:auto;top:26%;font-size:5.6vw;line-height:1.05}
+    .excuses{left:6%;right:6%;top:46%;bottom:15%}
+    .excuses li{font-size:4.3vw}
+    .excuses .n{width:2.6em}
+    .start-match{left:6%;bottom:5.5%;font-size:6.2vw}
+    .page{inset:22% 0 0 0}
+
+    .row.l1,.row.l5{padding-left:5%}
+    .row.l3{padding-left:12%}
+    .row.r2,.row.r4{padding-right:5%}
+    .word{font-size:6.9vw}
+    .num{width:6.4vw;font-size:5.4vw;top:-.25em}
+    .after .num{left:calc(100% + 2vw)}
+    .before .num{right:calc(100% + 2vw)}
+    .note,.before .note{top:calc(100% + 1.2vw);transform:none;font-size:3.5vw;line-height:1.3}
+    .after .note{left:0}
+    .before .note{right:0}
+    .row.solved .word{transform:translateY(-1.8vh);transition:transform .45s ease}
+
+    .review{font-size:4.6vw;right:5%;bottom:2.2%}
+    .saved{font-size:4.6vw;right:5%;top:1.4%}
+    .again{font-size:4.6vw;right:5%;bottom:2.2%}
+
+    .result{left:5%;right:5%;top:20%;bottom:20%}
+    .result .g{font-size:16.5vw}
+    .result .amount{font-size:30vw}
+    .result .u{font-size:8.6vw}
+    .result .spent{font-size:8.6vw}
+  }
 </style>
 </head>
 <body>
 
-<main id="home">
-  <header class="hero">
-    <h1 class="outline">Koopverbod</h1>
-    <button class="play" id="playBtn" type="button">Speel het spel</button>
-    <span class="tag">wat wouw ik kopen en is het gelukt?</span>
-  </header>
+<!-- STARTPAGINA: KOOPVERBOD -->
+<section class="screen active" id="start">
+  <div class="band"><h1>KOOPVERBOD</h1></div>
+  <div class="page"></div>
+  <p class="intro">Match de excuses bij het object en kom zo te weten hoeveel ik spaarde en wat ik uitgaf deze week.</p>
+  <ol class="excuses">
+    <li><span class="n">1.</span><span>100 paar is toch net te weinig</span></li>
+    <li><span class="n">2.</span><span>Want 1 kleurtje is echt wel te weinig</span></li>
+    <li><span class="n">3.</span><span>Want ik doe zeker en vast iedere dag skincare</span></li>
+    <li><span class="n">4.</span><span>Zo een specifieke bovenstuk heb ik nog niet, (50 andere wel)</span></li>
+    <li><span class="n">5.</span><span>Heb er nog niet genoeg&nbsp; en zeker geen in suede dus …</span></li>
+  </ol>
+  <button class="link start-match" id="toMatch">MATCH</button>
+</section>
 
-  <ul class="list" id="list">
-    <li class="row" tabindex="0"><div class="inner"><span class="word">Bruine suede jas</span><span class="meta"><b>139,00 euro</b><b>niet gekocht want te duur</b></span></div></li>
-    <li class="row" tabindex="0"><div class="inner"><span class="meta"><b>22,95 euro</b><b>niet gekocht want heb een hoeveel topjes heb je nodig</b></span><span class="word">Gestreepte soft top</span></div></li>
-    <li class="row" tabindex="0"><div class="inner"><span class="meta"><b>9,99 euro</b><b>wil ik nog kopen dus wrs wel</b></span><span class="word">Milky toner</span></div></li>
-    <li class="row" tabindex="0"><div class="inner"><span class="word">Zwarte sleehak pumps</span><span class="meta"><b>19,99 euro</b><b>oeps gekocht</b></span></div></li>
-    <li class="row" tabindex="0"><div class="inner"><span class="meta"><b>4,99 euro</b><b>oeps gekocht</b></span><span class="word">Bordeaux mascara</span></div></li>
-  </ul>
-</main>
-
-<section id="game" hidden aria-label="Kruiswoordraadsel">
-  <button class="back" id="backBtn" type="button">terug</button>
-  <div class="grid" id="grid"></div>
-  <div class="side">
-    <h2 class="outline">Welke excuses<br>gebruikt ik?</h2>
-    <div class="excuses">
-      <p>Heb echt nog niet genoeg jassen en zeker geen in suede dus ...</p>
-      <p>Zo een specifieke topje heb ik nog niet, (50 andere wel)</p>
-      <p>want ik doe zeker en vast iedere dag skincare</p>
-      <p>100 schoenen is toch net te weinig</p>
-      <p>want 1 mascara is echt wel te weinig</p>
+<!-- MATCHPAGINA -->
+<section class="screen" id="match">
+  <div class="rows">
+    <div class="row l1" data-answer="5">
+      <span class="word after">BRUINE SUEDE JAS
+        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij bruine suede jas" autocomplete="off">
+        <span class="note"><span>139,00 euro</span><span>niet gekocht want te duur</span></span>
+      </span>
     </div>
-    <div class="status" id="status" aria-live="polite"></div>
+    <div class="row r2" data-answer="4">
+      <span class="word before">GESTREEPTE SOFT TOP
+        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij gestreepte soft top" autocomplete="off">
+        <span class="note"><span>22,95 euro</span><span>niet gekocht want hoeveel</span><span>topjes heb je nodig</span></span>
+      </span>
+    </div>
+    <div class="row l3" data-answer="3">
+      <span class="word after">MILKY TONER
+        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij milky toner" autocomplete="off">
+        <span class="note"><span>9,99 euro</span><span>wil ik nog kopen dus wrs wel</span></span>
+      </span>
+    </div>
+    <div class="row r4" data-answer="1">
+      <span class="word before">ZWARTE SLEEHAK PUMPS
+        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij zwarte sleehak pumps" autocomplete="off">
+        <span class="note"><span>19,99 euro</span><span>oeps gekocht</span></span>
+      </span>
+    </div>
+    <div class="row l5" data-answer="2">
+      <span class="word after">BORDEAUX MASCARA
+        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij bordeaux mascara" autocomplete="off">
+        <span class="note"><span>4,99 euro</span><span>oeps gekocht</span></span>
+      </span>
+    </div>
+  </div>
+
+  <button class="link review" id="toStart">Herbekijk excuses</button>
+  <button class="link saved" id="showResult">saved or spent</button>
+  <button class="link again" id="again">opnieuw</button>
+
+  <div class="result" id="result" title="Klik om te sluiten">
+    <div class="big g">GESPAARD</div>
+    <div class="amount">171,94</div>
+    <div class="bottom">
+      <div class="big u">UITGEGEVEN</div>
+      <div class="spent">24,98</div>
+    </div>
   </div>
 </section>
 
 <script>
-/* ---- rijen: tik om te openen op gsm (hover werkt op desktop) ---- */
-(function(){
-  var rows=document.querySelectorAll(".row");
-  rows.forEach(function(row){
-    row.addEventListener("click",function(){
-      var was=row.classList.contains("open");
-      rows.forEach(function(x){x.classList.remove("open")});
-      if(!was)row.classList.add("open");
-    });
-    row.addEventListener("keydown",function(e){
-      if(e.key==="Enter"||e.key===" "){e.preventDefault();row.click();}
+  const start  = document.getElementById('start');
+  const match  = document.getElementById('match');
+  const result = document.getElementById('result');
+  const rows   = [...document.querySelectorAll('.row')];
+
+  function show(screen){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  document.getElementById('toMatch').addEventListener('click', () => {
+    show(match);
+    const first = rows.find(r => !r.classList.contains('solved'));
+    if (first && window.matchMedia('(pointer:fine)').matches) first.querySelector('.num').focus();
+  });
+  document.getElementById('toStart').addEventListener('click', () => show(start));
+
+  function openResult(){
+    result.classList.add('show');
+    requestAnimationFrame(() => requestAnimationFrame(() => result.classList.add('in')));
+  }
+  function closeResult(){
+    result.classList.remove('in');
+    setTimeout(() => result.classList.remove('show'), 500);
+  }
+  document.getElementById('showResult').addEventListener('click', openResult);
+  result.addEventListener('click', closeResult);
+
+  rows.forEach(row => {
+    const input = row.querySelector('.num');
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (!input.value) return;
+      if (input.value === row.dataset.answer) {
+        row.classList.add('solved');
+        input.blur();
+        checkDone();
+      } else {
+        input.classList.remove('wrong');
+        void input.offsetWidth;
+        input.classList.add('wrong');
+        setTimeout(() => { input.value = ''; input.classList.remove('wrong'); }, 450);
+      }
     });
   });
-})();
 
-/* ---- kruiswoordraadsel ---- */
-(function(){
-  var words=[
-    {w:"MASCARA",r:0,c:4,d:"v"},
-    {w:"JAS",r:2,c:2,d:"h"},
-    {w:"TONER",r:5,c:0,d:"h"},
-    {w:"TOP",r:4,c:1,d:"v"},
-    {w:"HAKKEN",r:6,c:3,d:"h"}
-  ];
-  var grid=document.getElementById("grid"),status=document.getElementById("status");
-  var cells={},cur=0;
-  function key(r,c){return r+"-"+c}
+  let resultTimer;
+  document.getElementById('again').addEventListener('click', () => {
+    clearTimeout(resultTimer);
+    result.classList.remove('in', 'show');
+    match.classList.remove('done');
+    rows.forEach(r => {
+      r.classList.remove('solved');
+      const i = r.querySelector('.num');
+      i.value = '';
+      i.classList.remove('wrong');
+    });
+    show(start);
+  });
 
-  words.forEach(function(o,wi){
-    o.keys=[];
-    for(var i=0;i<o.w.length;i++){
-      var r=o.r+(o.d==="v"?i:0),c=o.c+(o.d==="h"?i:0),k=key(r,c);
-      o.keys.push(k);
-      if(!cells[k]){
-        var box=document.createElement("div");box.className="cell";
-        box.style.gridRow=r+1;box.style.gridColumn=c+1;
-        var inp=document.createElement("input");
-        inp.maxLength=1;inp.autocomplete="off";inp.autocapitalize="characters";
-        inp.spellcheck=false;inp.setAttribute("aria-label","vakje rij "+(r+1)+" kolom "+(c+1));
-        box.appendChild(inp);grid.appendChild(box);
-        cells[k]={box:box,inp:inp,ans:o.w[i],r:r,c:c,words:[]};
-      }
-      cells[k].words.push(wi);
+  function checkDone(){
+    if (rows.every(r => r.classList.contains('solved'))) {
+      match.classList.add('done');
+      resultTimer = setTimeout(openResult, 1400);
     }
-  });
-
-  function mark(){
-    Object.keys(cells).forEach(function(k){cells[k].box.classList.remove("active")});
-    words[cur].keys.forEach(function(k){cells[k].box.classList.add("active")});
   }
-  function go(k){if(cells[k])cells[k].inp.focus()}
-  function check(){
-    var ok=Object.keys(cells).every(function(k){return cells[k].inp.value.toUpperCase()===cells[k].ans});
-    status.textContent=ok?"gelukt!":"";
-  }
-
-  Object.keys(cells).forEach(function(k){
-    var cl=cells[k],inp=cl.inp;
-    inp.addEventListener("focus",function(){
-      if(cl.words.indexOf(cur)<0)cur=cl.words[0];
-      mark();inp.select();
-    });
-    inp.addEventListener("click",function(){ /* tweede tik op kruispunt wisselt van richting */
-      if(cl.words.length>1&&inp.dataset.f==="1"){cur=cl.words[(cl.words.indexOf(cur)+1)%cl.words.length];mark()}
-      inp.dataset.f="1";inp.select();
-    });
-    inp.addEventListener("blur",function(){inp.dataset.f="0"});
-    inp.addEventListener("input",function(){
-      var v=(inp.value.match(/[a-zA-Z]/g)||[]).pop()||"";
-      inp.value=v.toUpperCase();
-      check();
-      if(v){var ks=words[cur].keys,i=ks.indexOf(k);if(i<ks.length-1)go(ks[i+1])}
-    });
-    inp.addEventListener("keydown",function(e){
-      var ks=words[cur].keys,i=ks.indexOf(k);
-      if(e.key==="Backspace"&&!inp.value&&i>0){e.preventDefault();go(ks[i-1]);cells[ks[i-1]].inp.value="";check();return}
-      var d={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]}[e.key];
-      if(d){
-        e.preventDefault();
-        for(var s=1;s<9;s++){var n=key(cl.r+d[0]*s,cl.c+d[1]*s);if(cells[n]){go(n);break}}
-      }
-    });
-  });
-
-  /* schermwissel */
-  var home=document.getElementById("home"),game=document.getElementById("game");
-  document.getElementById("playBtn").addEventListener("click",function(){
-    home.hidden=true;game.hidden=false;
-    var first=words[0].keys[0];cur=0;mark();go(first);
-  });
-  document.getElementById("backBtn").addEventListener("click",function(){
-    game.hidden=true;home.hidden=false;
-  });
-})();
 </script>
+<style>/* zak-menu staat rechtsboven */ .saved{right:calc(2.1% + max(32px,6.3vw) + 12px)!important}</style>
+<script src="../menu/menu.js" defer></script>
 </body>
 </html>

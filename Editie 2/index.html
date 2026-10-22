@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -192,18 +191,25 @@ function loop(){
   } else {const f=()=>{render(vid.currentTime);requestAnimationFrame(f);};requestAnimationFrame(f);}
 }
 cv.style.opacity=0;
-try{initGL();loop();}
+try{
+  if(location.protocol==='file:') throw 'lokaal'; // dubbelklik/sleep in Chrome: WebGL mag de bestanden niet lezen
+  initGL();loop();
+}
 catch(e){ // terugval: vaste video met alle kleren
   useGL=false;cv.remove();
-  vid.src='kast.mp4';vid.id='vid';vid.removeAttribute('crossorigin');vid.style.cssText='opacity:1;width:100%;height:100%;inset:0';
+  vid.removeAttribute('crossorigin');vid.src='kast.mp4';vid.id='vid';vid.style.cssText='opacity:1;width:100%;height:100%;inset:0';
 }
 vid.play().catch(()=>{});
 scenes.intro.addEventListener('click',()=>{
+  if(vid.readyState<2){show('rack');return;}
   if(vid.paused){vid.muted=false;vid.play().catch(()=>{vid.muted=true;vid.play().catch(()=>{})});}
   else if(vid.muted){vid.muted=false;}
   else {vid.pause();show('rack');}
 });
 vid.addEventListener('ended',()=>show('rack'));
+/* vangnet: als de video niet laadt, toch doorgaan naar het rek */
+vid.addEventListener('error',()=>{ if(current==='intro') show('rack'); });
+setTimeout(()=>{ if(current==='intro' && vid.readyState<2) show('rack'); },5000);
 /* de binnenkant van de kast hoogstens 3 seconden tonen (kast gaat open rond 4,7 s) */
 const END_AT=7.6;
 function checkEnd(){
@@ -336,7 +342,7 @@ function bindGestures(el,i){
   el.addEventListener('wheel',e=>{e.preventDefault();const p=pos[i];p.w=Math.max(40,Math.min(400,p.w*(e.deltaY<0?1.04:1/1.04)));place(i);},{passive:false});
 }
 </script>
+<style>/* zak-menu staat rechtsboven */ #undress{right:calc(max(16px,env(safe-area-inset-right)) + max(32px,6.3vw) + 12px)!important}</style>
+<script src="../menu/menu.js" defer></script>
 </body>
 </html>
-
-</body></html>
