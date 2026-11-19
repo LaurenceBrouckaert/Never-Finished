@@ -4,33 +4,213 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Koopverbod</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --bg:#e2e2e2;
+    --black:#000;
+    --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;background:#000}
-  .home{position:fixed;inset:0;overflow:hidden}
-  /* afbeelding vult het scherm; links schalen mee */
-  .doek{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100dvh * 5692 / 3200));aspect-ratio:5692/3200}
-  /* gsm rechtop: inzoomen op de zak zodat de nummers groot genoeg zijn */
-  @media (max-aspect-ratio:1/1){.doek{width:132vw}}
-  .doek img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none}
-  .editie{position:absolute;top:49%;width:9%;height:12%;
-          font-size:0;color:transparent;-webkit-tap-highlight-color:transparent;cursor:pointer}
-  .editie:focus-visible{outline:none}
-  .e1{left:24.5%} .e2{left:42.8%} .e3{left:68%}
-  /* onderlijning bij hover, in de kleur van de tekening */
-  .editie::after{content:"";position:absolute;left:15%;right:14%;top:88%;height:4.5%;border-radius:2px;
-                 background:#e27868;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-  .editie:hover::after,.editie:focus-visible::after{transform:scaleX(1)}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--black)}
+  body{font-family:var(--serif);-webkit-font-smoothing:antialiased;
+       touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+
+  .home{position:fixed;inset:0;cursor:grab}
+  .home.sleept{cursor:grabbing}
+
+  /* titel in het midden van de ring */
+  .titel{position:absolute;left:50%;top:var(--titel-top,44%);transform:translate(-50%,-50%);
+         font-weight:400;font-size:clamp(30px,5.4vw,96px);line-height:1;letter-spacing:.01em;
+         white-space:nowrap;pointer-events:none;z-index:50}
+  .titel em{font-style:italic}
+
+  .ring{position:absolute;inset:0}
+  .zak{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;
+       text-decoration:none;color:var(--black);will-change:transform;
+       -webkit-tap-highlight-color:transparent;outline:none}
+  .zak .foto{display:block;width:var(--zak-b);height:var(--zak-h);
+             display:flex;align-items:flex-end;justify-content:center;
+             transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .zak img{display:block;max-width:100%;max-height:100%;object-fit:contain;
+           -webkit-user-drag:none;pointer-events:none;
+           filter:drop-shadow(0 10px 14px rgba(0,0,0,.10))}
+  .zak .nr{margin-top:.35em;font-size:var(--nr);line-height:1;letter-spacing:.02em}
+  .zak .later{font-size:calc(var(--nr) * .42);font-style:italic;line-height:1.3;opacity:0;
+              transition:opacity .2s}
+  a.zak:hover .foto,a.zak:focus-visible .foto{transform:translateY(-4%) scale(1.05)}
+  a.zak:focus-visible .nr{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px}
+  .zak.leeg{cursor:default}
+  .zak.leeg:hover .later{opacity:.7}
+
+  .hint{position:absolute;left:0;right:0;bottom:max(18px,3.2vh,env(safe-area-inset-bottom));
+        text-align:center;font-size:clamp(12px,1.05vw,17px);font-style:italic;opacity:.6;pointer-events:none}
+
+  @media (prefers-reduced-motion:reduce){ .zak .foto{transition:none} }
 </style>
 </head>
 <body>
-<main class="home">
-  <div class="doek">
-    <img src="home.png" alt="Koopverbod: edities 01 tot 08" draggable="false">
-    <a class="editie e1" href="Editie%201/index.html">Editie 1</a>
-    <a class="editie e2" href="Editie%202/index.html">Editie 2</a>
-    <a class="editie e3" href="Editie%203/index.html">Editie 3</a>
+<main class="home" id="home">
+  <h1 class="titel">Koop<em>verbod</em></h1>
+  <div class="ring" id="ring">
+    <a class="zak" href="Editie%201/index.html" aria-label="Editie 1">
+      <span class="foto"><img src="home/zak1.webp" alt="" draggable="false"></span><span class="nr">01</span><span class="later">&nbsp;</span>
+    </a>
+    <a class="zak" href="Editie%202/index.html" aria-label="Editie 2">
+      <span class="foto"><img src="home/zak2.webp" alt="" draggable="false"></span><span class="nr">02</span><span class="later">&nbsp;</span>
+    </a>
+    <a class="zak" href="Editie%203/index.html" aria-label="Editie 3">
+      <span class="foto"><img src="home/zak3.webp" alt="" draggable="false"></span><span class="nr">03</span><span class="later">&nbsp;</span>
+    </a>
+    <div class="zak leeg" aria-label="Editie 4, binnenkort">
+      <span class="foto"><img src="home/zak4.webp" alt="" draggable="false"></span><span class="nr">04</span><span class="later">binnenkort</span>
+    </div>
+    <div class="zak leeg" aria-label="Editie 5, binnenkort">
+      <span class="foto"><img src="home/zak5.webp" alt="" draggable="false"></span><span class="nr">05</span><span class="later">binnenkort</span>
+    </div>
+    <div class="zak leeg" aria-label="Editie 6, binnenkort">
+      <span class="foto"><img src="home/zak6.webp" alt="" draggable="false"></span><span class="nr">06</span><span class="later">binnenkort</span>
+    </div>
   </div>
+  <p class="hint">scroll of sleep om te draaien &middot; klik op een zak</p>
 </main>
+
+<script>
+(function () {
+  var home = document.getElementById('home');
+  var zakken = [].slice.call(document.querySelectorAll('.zak'));
+  var N = zakken.length, STAP = Math.PI * 2 / N;
+  var stil = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var hoek = 0;          // huidige draaiing (radialen)
+  var snelheid = 0;      // radialen per frame (na slepen/scrollen)
+  var doel = null;       // hoek waar we naartoe draaien (bij focus/pijltjes)
+  var AUTO = stil ? 0 : 0.0016;
+  var rustTot = 0;       // na interactie even geen auto-draai
+  var m = {};            // maten
+
+  function maten() {
+    var w = innerWidth, h = innerHeight, staand = h > w;
+    m.cx = w / 2;
+    m.cy = h * (staand ? .50 : .52);
+    m.rx = w * (staand ? .36 : .38);
+    m.ry = h * (staand ? .19 : .25);
+    m.zh = Math.min(h * (staand ? .19 : .25), w * (staand ? .34 : .17));   // hoogte zak vooraan
+    var root = document.documentElement.style;
+    root.setProperty('--zak-h', m.zh + 'px');
+    root.setProperty('--zak-b', m.zh * 1.15 + 'px');
+    root.setProperty('--nr', Math.max(16, m.zh * .14) + 'px');
+    root.setProperty('--titel-top', (m.cy - m.zh * .35) / h * 100 + '%');
+  }
+
+  function teken() {
+    for (var i = 0; i < N; i++) {
+      var a = hoek + i * STAP;
+      var diepte = (Math.cos(a) + 1) / 2;           // 1 = vooraan, 0 = achteraan
+      var s = .5 + .5 * diepte;
+      var x = m.cx + Math.sin(a) * m.rx;
+      var y = m.cy + Math.cos(a) * m.ry;
+      var el = zakken[i];
+      var bw = m.zh * 1.15;
+      // verankerd aan de onderkant van de foto (staat op de ring)
+      el.style.transform = 'translate(' + (x - bw / 2) + 'px,' + (y - m.zh) + 'px) scale(' + s.toFixed(4) + ')';
+      el.style.transformOrigin = (bw / 2) + 'px ' + m.zh + 'px';
+      el.style.zIndex = Math.round(diepte * 100);
+      el.style.opacity = (.55 + .45 * diepte).toFixed(3);
+    }
+  }
+
+  function norm(a) { return Math.atan2(Math.sin(a), Math.cos(a)); }
+
+  function lus(t) {
+    if (doel !== null) {
+      var d = norm(doel - hoek);
+      hoek += d * .12;
+      if (Math.abs(d) < .001) { hoek = doel; doel = null; }
+    } else if (!sleep.actief) {
+      hoek += snelheid;
+      snelheid *= .94;
+      if (Math.abs(snelheid) < .00005) snelheid = 0;
+      if (t > rustTot && !snelheid) hoek += AUTO;
+    }
+    teken();
+    requestAnimationFrame(lus);
+  }
+
+  function rust() { rustTot = performance.now() + 2500; }
+
+  // scrollen (muis & trackpad)
+  addEventListener('wheel', function (e) {
+    e.preventDefault();
+    doel = null; rust();
+    var d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if (e.deltaMode === 1) d *= 16;
+    snelheid += d * .00012;
+    snelheid = Math.max(-.12, Math.min(.12, snelheid));
+  }, { passive: false });
+
+  // slepen (muis & touch)
+  var sleep = { actief: false, x: 0, vorige: 0, t: 0, afstand: 0 };
+  home.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return;
+    sleep.actief = true; sleep.x = sleep.vorige = e.clientX; sleep.t = performance.now(); sleep.afstand = 0;
+    doel = null; snelheid = 0; rust();
+  });
+  addEventListener('pointermove', function (e) {
+    if (!sleep.actief) return;
+    var dx = e.clientX - sleep.vorige;
+    sleep.afstand += Math.abs(dx);
+    if (sleep.afstand > 6) home.classList.add('sleept');
+    var stap = -dx / (m.rx * 1.6);
+    hoek += stap;
+    var nu = performance.now(), dt = Math.max(8, nu - sleep.t);
+    snelheid = stap * (16 / dt);
+    sleep.vorige = e.clientX; sleep.t = nu;
+  });
+  function los() {
+    if (!sleep.actief) return;
+    sleep.actief = false; home.classList.remove('sleept'); rust();
+    if (performance.now() - sleep.t > 80) snelheid = 0;
+  }
+  addEventListener('pointerup', los);
+  addEventListener('pointercancel', los);
+
+  // na slepen geen klik doorlaten
+  zakken.forEach(function (el, i) {
+    el.addEventListener('click', function (e) {
+      if (sleep.afstand > 6) { e.preventDefault(); sleep.afstand = 0; }
+    });
+    // met tab naar een zak: draai hem naar voren
+    el.addEventListener('focus', function () { draaiNaar(i); });
+    if (el.tagName === 'A') el.tabIndex = 0;
+  });
+
+  function draaiNaar(i) {
+    // zak i vooraan = hoek + i*STAP == 0 (mod 2π), kortste weg
+    doel = hoek + norm(-i * STAP - hoek);
+    snelheid = 0; rust();
+  }
+  function vooraan() {
+    var best = 0, b = -2;
+    for (var i = 0; i < N; i++) { var c = Math.cos(hoek + i * STAP); if (c > b) { b = c; best = i; } }
+    return best;
+  }
+
+  addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); draaiNaar((vooraan() + N - 1) % N); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); draaiNaar((vooraan() + 1) % N); }
+    else if (e.key === 'Enter' && document.activeElement === document.body) {
+      var z = zakken[vooraan()]; if (z.href) location.href = z.href;
+    }
+  });
+
+  addEventListener('resize', function () { maten(); teken(); });
+  maten(); teken();
+  requestAnimationFrame(lus);
+})();
+</script>
 </body>
 </html>

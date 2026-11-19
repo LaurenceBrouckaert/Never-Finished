@@ -32,7 +32,7 @@
   /* ---------- STARTPAGINA ---------- */
   .band{position:absolute;left:0;right:0;top:0;height:29.7%;background:var(--green);
         border:1px solid var(--black);overflow:hidden}
-  .band h1{position:absolute;left:-.4%;top:50%;transform:translateY(-50%);
+  .band h1{position:absolute;left:0;top:50%;transform:translateY(-50%);
         font-family:var(--sans);font-weight:700;font-size:calc(var(--u)*15.1);line-height:1;
         letter-spacing:-.005em;white-space:nowrap;color:var(--beige);
         -webkit-text-stroke:max(1px, calc(var(--u)*.09)) var(--black)}
@@ -270,6 +270,21 @@
   }
 </script>
 <style>/* zak-menu staat rechtsboven */ .saved{right:calc(2.1% + max(32px,6.3vw) + 12px)!important}</style>
+<script>
+/* KOOPVERBOD altijd volledig tonen: verklein de titel als hij breder is dan de band */
+(function(){
+  var h=document.querySelector('.band h1'); if(!h) return;
+  function past(){
+    h.style.fontSize='';
+    var bw=h.parentElement.clientWidth; if(!bw) return;
+    var w=h.scrollWidth;
+    if(w>bw*.99) h.style.fontSize=(parseFloat(getComputedStyle(h).fontSize)*bw*.99/w)+'px';
+  }
+  if(window.ResizeObserver) new ResizeObserver(past).observe(h.parentElement); else addEventListener('resize',past);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(past);
+  past();
+})();
+</script>
 <script src="../menu/menu.js" defer></script>
 </body>
 </html>
