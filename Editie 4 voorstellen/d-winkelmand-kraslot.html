@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Editie 4 · Shop 'till you drop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e2e2e2; --black:#000; --green:#c6ddc6; --red:#d8432f; --groen:#3d7a47;
+    --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--black)}
+  body{font-family:var(--serif);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+
+  .kop{position:absolute;left:0;right:0;top:0;height:16vh;background:var(--green);border:1px solid #000;
+       display:flex;align-items:center;padding:0 3vw;overflow:hidden}
+  .kop h1{font-family:var(--sans);font-weight:700;font-size:min(7.4vw,12vh);line-height:1;white-space:nowrap;
+          color:var(--bg);-webkit-text-stroke:1px #000;letter-spacing:-.005em}
+
+  .tellers{position:absolute;left:3vw;right:3vw;top:calc(16vh + 2.2vh);display:flex;justify-content:space-between;
+           align-items:baseline;font-size:clamp(15px,1.6vw,24px)}
+  .tellers b{font-weight:400;font-size:1.7em;font-variant-numeric:lining-nums tabular-nums}
+  .te-betalen b{color:var(--red)}
+  .bespaard{text-align:right}
+  .bespaard b{color:var(--groen)}
+  .uitleg{position:absolute;left:3vw;top:calc(16vh + 8.5vh);font-size:clamp(13px,1.05vw,17px);font-style:italic;opacity:.65}
+
+  /* mandje */
+  .mand{position:absolute;left:3vw;right:26vw;top:30vh;bottom:4vh;display:grid;
+        grid-template-columns:repeat(5,1fr);gap:1.4vw;align-content:start}
+  .artikel{position:relative;background:#fff;border:1px solid #000;border-radius:2px;padding:.9vw;
+           display:flex;flex-direction:column;gap:.6vh;height:62vh;touch-action:none;
+           transition:transform .25s ease,opacity .25s ease,box-shadow .2s}
+  .artikel .foto{flex:1;min-height:8vh;border:1px dashed #9a9a9a;display:flex;align-items:center;justify-content:center;
+                 font-size:clamp(11px,.8vw,13px);font-style:italic;color:#888;text-align:center;padding:.5em}
+  .artikel h2{font-weight:400;font-size:clamp(15px,1.3vw,22px);line-height:1.05}
+  .artikel .prijs{font-family:var(--sans);font-size:clamp(13px,1vw,16px)}
+
+  /* kraslot in het artikel */
+  .kras{position:relative;height:22vh;border:1px solid #000;overflow:hidden;background:#fff}
+  .kras .echt{position:absolute;inset:0;padding:.7vw;display:flex;flex-direction:column;justify-content:center;
+              font-size:clamp(13px,1.05vw,17px);line-height:1.18}
+  .kras .echt small{font-family:var(--sans);font-size:.62em;letter-spacing:.1em;margin-bottom:.5em;opacity:.6}
+  .kras canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;transition:opacity .5s ease}
+  .artikel.vrij .kras canvas{opacity:0;pointer-events:none}
+
+  .artikel .knop{font-family:var(--sans);font-size:clamp(10px,.72vw,12px);letter-spacing:.08em;text-transform:uppercase;
+                 background:#000;color:#fff;text-align:center;padding:.65em 0;border-radius:2px;transition:background .3s}
+  .artikel.vrij{cursor:grab}
+  .artikel.vrij:hover{box-shadow:0 8px 18px rgba(0,0,0,.12)}
+  .artikel.vrij .knop{background:var(--groen)}
+  .artikel.sleep{cursor:grabbing;transition:none;z-index:10;box-shadow:0 18px 30px rgba(0,0,0,.2)}
+  .artikel.nee{animation:nee .35s ease}
+  @keyframes nee{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .artikel.weg{opacity:0}
+
+  /* prullenbak */
+  .bak{position:absolute;right:3vw;top:30vh;width:20vw;height:30vh;border:1px dashed #000;border-radius:2px;
+       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5vh;
+       transition:background .2s,transform .2s}
+  .bak svg{width:34%;height:auto}
+  .bak p{font-size:clamp(14px,1.25vw,20px);text-align:center}
+  .bak.erboven{background:#fff;transform:scale(1.03)}
+  .bak.hap{animation:hap .35s ease}
+  @keyframes hap{40%{transform:scale(1.08) rotate(-2deg)}}
+
+  /* bon */
+  .bon{position:absolute;right:3vw;top:calc(30vh + 32vh);width:20vw;bottom:4vh;overflow:auto;
+       font-size:clamp(13px,1vw,16px);line-height:1.3}
+  .bon .regel{border-top:1px solid #000;padding:.6em 0;display:flex;justify-content:space-between;gap:1em;animation:in .5s ease both}
+  .bon .regel span:last-child{font-family:var(--sans);color:var(--groen);white-space:nowrap}
+  @keyframes in{from{opacity:0;transform:translateY(-8px)}}
+
+  /* einde */
+  .einde{position:absolute;inset:16vh 0 0 0;background:var(--bg);display:flex;flex-direction:column;
+         align-items:center;justify-content:center;text-align:center;gap:2vh;opacity:0;pointer-events:none;
+         transition:opacity 1s ease .4s}
+  .einde.aan{opacity:1;pointer-events:auto}
+  .einde .groot{font-size:clamp(48px,9vw,160px);line-height:1;color:var(--groen)}
+  .einde p{font-size:clamp(18px,2.2vw,36px)}
+  .einde button{margin-top:2vh;font-family:var(--serif);font-size:clamp(14px,1.1vw,18px);background:none;border:0;
+                text-decoration:underline;cursor:pointer;color:#000}
+
+  @media (max-width:760px){
+    .kop{height:12vh;padding-right:64px}
+    .kop h1{font-size:6.6vw}
+    .artikel h2{font-size:14px}
+    .artikel .knop{font-size:9px;letter-spacing:.02em;padding:.55em 0;white-space:nowrap}
+    .tellers{top:calc(12vh + 1.5vh)}
+    .uitleg{top:calc(12vh + 7.5vh);right:4vw}
+    .mand{left:4vw;right:4vw;top:23vh;bottom:auto;grid-template-columns:repeat(3,1fr);gap:2.5vw}
+    .artikel{height:auto;padding:2vw}
+    .artikel .foto{display:none}
+    .kras{height:11vh}
+    .kras .echt{padding:1.5vw;font-size:12px}
+    .bak{left:4vw;right:4vw;width:auto;top:auto;bottom:3vh;height:11vh;flex-direction:row}
+    .bak svg{width:auto;height:60%}
+    .bon{display:none}
+    .einde{inset:12vh 0 0 0;padding:0 6vw}
+  }
+</style>
+</head>
+<body>
+<header class="kop"><h1>SHOP 'TILL YOU DROP</h1></header>
+
+<div class="tellers">
+  <div class="te-betalen">Te betalen <b id="betalen">€0</b></div>
+  <div class="bespaard">Bespaard <b id="bespaard">€0</b></div>
+</div>
+<p class="uitleg">Kras eerst je smoes weg. Pas dan mag het in de prullenbak.</p>
+
+<section class="mand" id="mand" aria-label="Winkelmand"></section>
+
+<div class="bak" id="bak" aria-label="Prullenbak">
+  <svg viewBox="0 0 64 72" fill="none" stroke="#000" stroke-width="1.6" aria-hidden="true">
+    <path d="M6 14h52M24 14V8h16v6M11 14l4 52h34l4-52"/><path d="M25 26v30M32 26v30M39 26v30"/>
+  </svg>
+  <p>Sleep hierheen</p>
+</div>
+
+<div class="bon" id="bon" aria-live="polite"></div>
+
+<section class="einde" id="einde">
+  <div class="groot" id="eindbedrag">€0</div>
+  <p>bespaard deze week.</p>
+  <p><em>Je had dit al.</em></p>
+  <button type="button" id="opnieuw">opnieuw</button>
+</section>
+
+<script>
+/* VOORBEELDINHOUD: vervang door jouw spullen van de week */
+var SPULLEN = [
+  { naam: 'Kanten blouse',      prijs: 59,  smoes: 'Zo een specifiek bovenstuk heb ik nog niet.', echt: 'Ik heb er 50 andere. Ook in het wit.' },
+  { naam: 'Suède schoudertas',  prijs: 145, smoes: 'Ik heb er nog geen in suède.',                echt: 'Ik heb zes tassen. Ik draag er altijd dezelfde.' },
+  { naam: 'Sneakers',           prijs: 119, smoes: '100 paar is toch net te weinig.',            echt: 'Ik draag er drie. De rest staat in de doos.' },
+  { naam: 'Lipgloss, 4 tinten', prijs: 48,  smoes: 'Want 1 kleurtje is echt te weinig.',         echt: 'Ik gebruik al twee jaar dezelfde.' },
+  { naam: 'Serum',              prijs: 39,  smoes: 'Ik doe zeker en vast iedere dag skincare.',  echt: 'Mijn vorige fles is nog half vol.' }
+];
+
+var mand = document.getElementById('mand'), bak = document.getElementById('bak'), bon = document.getElementById('bon');
+var tBetalen = document.getElementById('betalen'), tBespaard = document.getElementById('bespaard');
+var einde = document.getElementById('einde');
+var betalen = 0, bespaard = 0, over = 0;
+var serif = getComputedStyle(document.body).fontFamily;
+
+function euro(n){ return '€' + n; }
+function tel(el, van, naar){
+  var t0 = performance.now();
+  (function stap(t){ var k = Math.min(1,(t-t0)/500); el.textContent = euro(Math.round(van+(naar-van)*k)); if(k<1) requestAnimationFrame(stap); })(t0);
+}
+
+function vul(){
+  mand.innerHTML = ''; bon.innerHTML = ''; einde.classList.remove('aan');
+  betalen = 0; bespaard = 0; over = SPULLEN.length;
+  SPULLEN.forEach(function(s, i){
+    betalen += s.prijs;
+    var a = document.createElement('article');
+    a.className = 'artikel'; a.tabIndex = 0; a.dataset.i = i;
+    a.setAttribute('aria-label', s.naam + ', ' + euro(s.prijs));
+    a.innerHTML = '<div class="foto">foto ' + s.naam.toLowerCase() + '</div><h2>' + s.naam + '</h2>' +
+                  '<div class="prijs">' + euro(s.prijs) + '</div>' +
+                  '<div class="kras"><div class="echt"><small>EIGENLIJK</small>' + s.echt + '</div><canvas aria-label="Kraslot: ' + s.smoes + '"></canvas></div>' +
+                  '<div class="knop">In winkelmand ✓</div>';
+    mand.appendChild(a);
+    kraslot(a, a.querySelector('canvas'), s.smoes);
+    sleepbaar(a);
+  });
+  tBetalen.textContent = euro(betalen); tBespaard.textContent = euro(0);
+}
+
+/* ---------- krassen ---------- */
+function kraslot(art, c, tekst){
+  var ctx = c.getContext('2d'), dpr = Math.max(1, devicePixelRatio || 1), w, h, bezig = false, laatst = null, n = 0;
+  function teken(){
+    var r = c.getBoundingClientRect(); w = r.width; h = r.height; if(!w) return;
+    c.width = w*dpr; c.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.globalCompositeOperation = 'source-over';
+    var g = ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'#d2d2d2'); g.addColorStop(.5,'#b7b7b7'); g.addColorStop(1,'#d8d8d8');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    for(var k=0;k<w*h/16;k++){ ctx.fillStyle = 'rgba(255,255,255,' + Math.random()*.28 + ')'; ctx.fillRect(Math.random()*w, Math.random()*h, 1, 1); }
+    ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    var fs = Math.max(12, Math.min(w*.1, 19)); ctx.font = 'italic ' + fs + 'px ' + serif;
+    var lijnen = breek('"' + tekst + '"', w*.84), y0 = h/2 - (lijnen.length-1)*fs*.6 - fs*.3;
+    lijnen.forEach(function(t, j){ ctx.fillText(t, w/2, y0 + j*fs*1.2); });
+    ctx.font = Math.max(8, fs*.5) + 'px Helvetica, Arial, sans-serif'; ctx.fillText('KRAS DE SMOES WEG', w/2, h - fs*.8);
+  }
+  function breek(t, max){
+    var woorden = t.split(' '), lijnen = [], r = '';
+    woorden.forEach(function(wd){ var p = r ? r + ' ' + wd : wd; if(ctx.measureText(p).width > max && r){ lijnen.push(r); r = wd; } else r = p; });
+    lijnen.push(r); return lijnen;
+  }
+  function veeg(x, y){
+    ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(20, w*.18);
+    ctx.beginPath(); ctx.moveTo(laatst ? laatst.x : x, laatst ? laatst.y : y); ctx.lineTo(x, y); ctx.stroke();
+    laatst = {x:x, y:y};
+    if(++n % 8 === 0) check();
+  }
+  function check(){
+    if(art.classList.contains('vrij')) return;
+    var d = ctx.getImageData(0,0,c.width,c.height).data, leeg = 0, tot = 0;
+    for(var i=3;i<d.length;i+=64){ tot++; if(d[i]===0) leeg++; }
+    if(leeg/tot > .5){
+      art.classList.add('vrij');
+      art.querySelector('.knop').textContent = 'Weg ermee →';
+      art.setAttribute('aria-label', art.getAttribute('aria-label') + '. Sleep naar de prullenbak of druk op Delete.');
+    }
+  }
+  function pos(e){ var r = c.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+  c.addEventListener('pointerdown', function(e){ e.stopPropagation(); bezig = true; laatst = null; c.setPointerCapture(e.pointerId); var p = pos(e); veeg(p.x,p.y); });
+  c.addEventListener('pointermove', function(e){ var p = pos(e); if(bezig || e.pointerType === 'mouse') veeg(p.x,p.y); });
+  c.addEventListener('pointerleave', function(){ laatst = null; });
+  c.addEventListener('pointerup', function(){ bezig = false; check(); });
+  c.addEventListener('pointercancel', function(){ bezig = false; });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(teken);
+  teken();
+  addEventListener('resize', function(){ if(!art.classList.contains('vrij')) teken(); });
+}
+
+/* ---------- slepen ---------- */
+function boven(x, y){ var r = bak.getBoundingClientRect(); return x>r.left && x<r.right && y>r.top && y<r.bottom; }
+
+function nee(a){ a.classList.remove('nee'); void a.offsetWidth; a.classList.add('nee'); }
+
+function sleepbaar(a){
+  var sx, sy, aan = false;
+  a.addEventListener('pointerdown', function(e){
+    if(!a.classList.contains('vrij')){ nee(a); return; }
+    aan = true; sx = e.clientX; sy = e.clientY; a.setPointerCapture(e.pointerId); a.classList.add('sleep');
+  });
+  a.addEventListener('pointermove', function(e){
+    if(!aan) return;
+    a.style.transform = 'translate(' + (e.clientX-sx) + 'px,' + (e.clientY-sy) + 'px) rotate(' + ((e.clientX-sx)*.02) + 'deg)';
+    bak.classList.toggle('erboven', boven(e.clientX, e.clientY));
+  });
+  function los(e){
+    if(!aan) return; aan = false; a.classList.remove('sleep'); bak.classList.remove('erboven');
+    if(boven(e.clientX, e.clientY)) gooi(a); else a.style.transform = '';
+  }
+  a.addEventListener('pointerup', los); a.addEventListener('pointercancel', los);
+  a.addEventListener('keydown', function(e){
+    if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); if(a.classList.contains('vrij')) gooi(a); else nee(a); }
+  });
+}
+
+function gooi(a){
+  var s = SPULLEN[a.dataset.i];
+  a.classList.add('weg'); a.style.transform += ' scale(.2) rotate(-12deg)';
+  bak.classList.remove('hap'); void bak.offsetWidth; bak.classList.add('hap');
+  setTimeout(function(){ a.remove(); }, 260);
+  tel(tBetalen, betalen, betalen - s.prijs); betalen -= s.prijs;
+  tel(tBespaard, bespaard, bespaard + s.prijs); bespaard += s.prijs;
+  var r = document.createElement('div'); r.className = 'regel';
+  r.innerHTML = '<span>' + s.naam + '</span><span>+' + euro(s.prijs) + '</span>';
+  bon.prepend(r);
+  if(--over === 0){ document.getElementById('eindbedrag').textContent = euro(bespaard); setTimeout(function(){ einde.classList.add('aan'); }, 900); }
+}
+
+document.getElementById('opnieuw').addEventListener('click', vul);
+vul();
+</script>
+<script src="../menu/menu.js" defer></script>
+</body>
+</html>

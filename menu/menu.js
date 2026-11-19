@@ -10,7 +10,8 @@
     { label: 'HOME',     href: new URL('index.html', root).href },
     { label: 'Editie 1', href: new URL('Editie%201/index.html', root).href },
     { label: 'Editie 2', href: new URL('Editie%202/index.html', root).href },
-    { label: 'Editie 3', href: new URL('Editie%203/index.html', root).href }
+    { label: 'Editie 3', href: new URL('Editie%203/index.html', root).href },
+    { label: 'Editie 4', href: new URL('Editie%204/index.html', root).href }
   ];
 
   var css = '' +
