@@ -11,7 +11,8 @@
     { label: 'Editie 1', href: new URL('Editie%201/index.html', root).href },
     { label: 'Editie 2', href: new URL('Editie%202/index.html', root).href },
     { label: 'Editie 3', href: new URL('Editie%203/index.html', root).href },
-    { label: 'Editie 4', href: new URL('Editie%204/index.html', root).href }
+    { label: 'Editie 4', href: new URL('Editie%204/index.html', root).href },
+    { label: 'Editie 5', href: new URL('Editie%205/index.html', root).href }
   ];
 
   var css = '' +
