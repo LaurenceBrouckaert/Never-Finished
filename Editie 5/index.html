@@ -11,12 +11,19 @@
 <style>
   :root{
     --uur-h:150px;               /* 1 uur = 150 pixels, de dag is 24 × 150 = 3600 px hoog */
-    --bg:#0d0d0d;                /* wordt per scrollpositie gezet door het script */
-    --ink:#e2e2e2;
+    /* enkel deze vier kleuren */
+    --groen:#c6ddc6; --grijs:#e2e2e2; --zwart:#000000; --roze:#d37868;
+    --bg:var(--zwart); --ink:var(--grijs); --accent:var(--roze); --leeg:var(--groen);
     --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
     --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  /* dagdelen, gezet door het script */
+  /* achtergrond: enkel grijs (overdag) en zwart ('s nachts); groen en roze zijn accenten */
+  html.nacht  {--bg:var(--zwart);--ink:var(--grijs)}
+  html.ochtend,
+  html.dag,
+  html.avond  {--bg:var(--grijs);--ink:var(--zwart)}
   html{background:var(--bg)}
   body{background:var(--bg);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased}
 
@@ -24,16 +31,16 @@
   .kop{position:fixed;left:0;right:0;top:0;z-index:20;padding-top:14px !important;padding-bottom:12px !important;
        display:flex;align-items:center;justify-content:space-between;gap:4vw;
        padding:0 calc(max(27px,env(safe-area-inset-right)) + 37px + 24px) 0 3vw;
-       background:var(--bg);border-bottom:1px solid color-mix(in srgb,var(--ink) 35%,transparent)}
+       background:var(--bg);border-bottom:1px solid var(--ink)}
   .kop .uur{font-size:clamp(40px,5.4vw,80px);line-height:1.05;font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.01em}
-  .kop .titel{font-family:var(--sans);font-size:clamp(10px,.85vw,13px);letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin-top:.5em}
+  .kop .titel{font-family:var(--sans);font-size:clamp(10px,.85vw,13px);letter-spacing:.12em;text-transform:uppercase;margin-top:.5em}
   .kop .mand{text-align:right;font-size:clamp(14px,1.4vw,22px);line-height:1.1}
-  .kop .mand b{display:block;font-weight:400;font-size:2.1em;font-variant-numeric:lining-nums tabular-nums;transition:color .4s}
-  .kop .mand.vol b{color:#e5533d}
-  .kop .mand.leeg b{color:#6fb37d}
+  .kop .mand b{display:block;font-weight:400;font-size:2.1em;font-variant-numeric:lining-nums tabular-nums}
+  .kop .mand.vol b{color:var(--accent)}
+  .kop .mand.leeg b{color:var(--leeg)}
 
   /* nu-lijn: het moment waarop je nu kijkt */
-  .nu{position:fixed;left:0;right:0;top:50%;height:0;border-top:1px dashed color-mix(in srgb,var(--ink) 45%,transparent);
+  .nu{position:fixed;left:0;right:0;top:50%;height:0;border-top:1px dashed var(--ink);
       z-index:5;pointer-events:none}
 
   /* ---------- DE STROOK (de dag) ---------- */
@@ -42,21 +49,22 @@
 
   /* uurschaal links */
   .tik{position:absolute;left:0;right:0;top:calc(var(--uur) * var(--uur-h));height:0;
-       border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
-  .tik span{position:absolute;left:3vw;top:.4em;font-family:var(--sans);font-size:11px;letter-spacing:.08em;opacity:.45}
+       border-top:1px dotted var(--ink)}
+  .tik span{position:absolute;left:3vw;top:.4em;font-family:var(--sans);font-size:11px;letter-spacing:.08em}
 
   /* een moment staat op zijn uur */
   .moment{position:absolute;top:calc(var(--uur) * var(--uur-h));left:var(--x,18%);width:var(--w,36%);
-          transform:translateY(-.6em);transition:opacity .5s ease}
-  .moment .tijd{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.1em;opacity:.6;margin-bottom:.5em}
+          transform:translateY(-.6em)}
+  .moment .tijd{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.1em;margin-bottom:.5em}
   .moment p{font-size:clamp(18px,1.9vw,30px);line-height:1.18}
   .moment .prijs{display:inline-block;margin-top:.55em;font-family:var(--sans);font-size:13px;letter-spacing:.06em;
-                 border:1px solid currentColor;border-radius:999px;padding:.35em .9em}
+                 background:var(--groen);border:1px solid var(--groen);color:var(--zwart);border-radius:999px;padding:.35em .9em}
+  .moment.avond .prijs{background:var(--roze);border-color:var(--roze)}
 
   /* hoe later, hoe luider: 's avonds en 's nachts praat de webshop */
   .moment.avond p{font-family:var(--sans);font-weight:700;font-size:clamp(22px,2.6vw,42px);line-height:1.02;letter-spacing:-.01em}
   .moment.nacht p{font-family:var(--sans);font-weight:700;text-transform:uppercase;font-size:clamp(26px,3.8vw,62px);line-height:.95;letter-spacing:-.015em}
-  .moment.nacht .prijs{background:#e5533d;border-color:#e5533d;color:#fff}
+  .moment.nacht .prijs{background:var(--roze);border-color:var(--roze);color:var(--zwart)}
 
   /* het einde van de dag */
   .moment.slot p{font-family:var(--serif);font-weight:400;text-transform:none;font-size:clamp(26px,3.2vw,52px);line-height:1.1}
@@ -67,7 +75,6 @@
     .tik span{left:4vw}
     .moment{left:16% !important;width:78% !important}
   }
-  @media (prefers-reduced-motion:reduce){ .kop .mand b{transition:none} }
 </style>
 </head>
 <body>
@@ -173,17 +180,15 @@
     else if(u >= 19) m.classList.add('avond');
   });
 
-  /* licht van de dag: nacht bovenaan en onderaan, lichtgrijs overdag */
-  var LICHT = [ [0,13],[5,22],[6.5,120],[8,226],[17,226],[19,170],[21,60],[22.5,22],[24,13] ];
-  function licht(u){
-    for(var i = 1; i < LICHT.length; i++){
-      if(u <= LICHT[i][0]){
-        var a = LICHT[i-1], b = LICHT[i], k = (u - a[0]) / (b[0] - a[0]);
-        return a[1] + (b[1] - a[1]) * k;
-      }
-    }
-    return 13;
+  /* dagdelen: nacht zwart, ochtend groen, dag grijs, avond roze, en weer nacht */
+  function dagdeel(u){
+    if(u < 6.5) return 'nacht';
+    if(u < 10)  return 'ochtend';
+    if(u < 18)  return 'dag';
+    if(u < 21)  return 'avond';
+    return 'nacht';
   }
+  var html = document.documentElement, huidig = '';
 
   function uurNu(){
     var u = window.scrollY / strook.offsetHeight * 24;
@@ -202,16 +207,13 @@
 
     uurEl.textContent = klok(u);
 
-    var g = Math.round(licht(u)), root = document.documentElement.style;
-    root.setProperty('--bg', 'rgb(' + g + ',' + g + ',' + g + ')');
-    root.setProperty('--ink', g > 120 ? '#000' : '#e2e2e2');
+    var d = dagdeel(u);
+    if(d !== huidig){ if(huidig) html.classList.remove(huidig); html.classList.add(d); huidig = d; }
 
     var som = 0;
     momenten.forEach(function(m){
       var mu = parseFloat(m.dataset.uur), p = parseFloat(m.dataset.prijs || 0);
       if(mu <= u + 1e-6) som += p;
-      // wat nog moet komen, is er nog niet helemaal
-      m.style.opacity = mu <= u + 2.2 ? 1 : .25;
     });
     var leeg = u >= SLOT;
     bedragEl.textContent = euro(leeg ? 0 : som);
