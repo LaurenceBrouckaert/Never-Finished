@@ -20,7 +20,7 @@ img{user-select:none;-webkit-user-drag:none;-webkit-user-select:none}
 /* 2. rek */
 #rack{background:radial-gradient(ellipse at 50% 40%,#fbf7f0 0%,var(--bg) 55%,var(--bg2) 100%)}
 #strip{position:absolute;inset:0;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 calc(50vw - 21vh);gap:6vh;-webkit-overflow-scrolling:touch}
+  scroll-snap-type:none;scrollbar-width:none;padding:0 calc(50vw - 21vh);gap:6vh;-webkit-overflow-scrolling:touch}
 #strip::-webkit-scrollbar{display:none}
 .item{flex:0 0 42vh;height:66vh;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;cursor:pointer;
   transition:transform .35s ease,opacity .35s ease;will-change:transform}
@@ -199,6 +199,10 @@ catch(e){ // terugval: vaste video met alle kleren
   useGL=false;cv.remove();
   vid.removeAttribute('crossorigin');vid.src='kast.mp4';vid.id='vid';vid.style.cssText='opacity:1;width:100%;height:100%;inset:0';
 }
+/* de video begint meteen bij het openen van de deur (begint op 5,4 s: de deur is al open, geen hand meer te zien) */
+const START_AT=5.4;
+function naarStart(){ try{ if(vid.currentTime<START_AT) vid.currentTime=START_AT; }catch(e){} }
+if(vid.readyState>=1) naarStart(); else vid.addEventListener('loadedmetadata',naarStart,{once:true});
 vid.play().catch(()=>{});
 scenes.intro.addEventListener('click',()=>{
   if(vid.readyState<2){show('rack');return;}
@@ -221,7 +225,7 @@ function replayCloset(){
   wornSet=new Set(Object.values(worn).filter(i=>i!==null).map(i=>ITEMS[i].n));
   drawRack();
   show('intro');
-  try{vid.currentTime=4.0;}catch(e){}
+  try{vid.currentTime=START_AT;}catch(e){}
   vid.play().catch(()=>{});
 }
 
@@ -238,9 +242,21 @@ const cards=ITEMS.map((it,i)=>{
   });
   return b;
 });
+/* traag door de kleren scrollen: scroll wordt afgeremd, en pas als je stopt schuift het dichtstbijzijnde kledingstuk zacht naar het midden */
+const TRAAG=0.3;                       // hoe kleiner, hoe trager (1 = normale snelheid)
+let snapTimer=null;
+function snapNaarMidden(){
+  const c=innerWidth/2;let best=null,bd=1e9;
+  cards.forEach(b=>{const r=b.getBoundingClientRect(),d=r.left+r.width/2-c;if(Math.abs(d)<Math.abs(bd)){bd=d;best=b;}});
+  if(best&&Math.abs(bd)>2)strip.scrollBy({left:bd,behavior:'smooth'});
+}
 strip.addEventListener('wheel',e=>{
-  if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();strip.scrollBy({left:e.deltaY*1.2});}
+  e.preventDefault();
+  const d=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;
+  strip.scrollLeft+=d*(e.deltaMode===1?16:1)*TRAAG;
+  clearTimeout(snapTimer);snapTimer=setTimeout(snapNaarMidden,260);
 },{passive:false});
+strip.addEventListener('touchend',()=>{clearTimeout(snapTimer);snapTimer=setTimeout(snapNaarMidden,320);},{passive:true});
 addEventListener('keydown',e=>{
   if(current==='rack'){
     const w=cards[0].getBoundingClientRect().width+parseFloat(getComputedStyle(strip).gap);
