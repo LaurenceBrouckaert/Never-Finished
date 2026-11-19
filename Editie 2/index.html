@@ -342,7 +342,7 @@ function bindGestures(el,i){
   el.addEventListener('wheel',e=>{e.preventDefault();const p=pos[i];p.w=Math.max(40,Math.min(400,p.w*(e.deltaY<0?1.04:1/1.04)));place(i);},{passive:false});
 }
 </script>
-<style>/* zak-menu staat rechtsboven */ #undress{right:calc(max(16px,env(safe-area-inset-right)) + max(32px,6.3vw) + 12px)!important}</style>
+<style>/* zak-menu staat rechtsboven */ #undress{right:calc(max(16px,env(safe-area-inset-right)) + max(96px,11vw) + 12px)!important}</style>
 <script src="../menu/menu.js" defer></script>
 </body>
 </html>
