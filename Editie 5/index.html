@@ -13,14 +13,14 @@
     --uur-h:150px;               /* 1 uur = 150 pixels, de dag is 24 × 150 = 3600 px hoog */
     /* enkel deze vier kleuren */
     --groen:#c6ddc6; --grijs:#e2e2e2; --zwart:#000000; --roze:#d37868;
-    --bg:var(--zwart); --ink:var(--grijs); --accent:var(--roze); --leeg:var(--groen);
+    --bg:var(--grijs); --ink:var(--zwart); --accent:var(--roze); --leeg:var(--groen);
     --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
     --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   /* dagdelen, gezet door het script */
-  /* achtergrond: enkel grijs (overdag) en zwart ('s nachts); groen en roze zijn accenten */
-  html.nacht  {--bg:var(--zwart);--ink:var(--grijs)}
+  /* achtergrond: altijd grijs #e2e2e2; groen en roze zijn accenten */
+  html.nacht,
   html.ochtend,
   html.dag,
   html.avond  {--bg:var(--grijs);--ink:var(--zwart)}
@@ -45,7 +45,7 @@
 
   /* ---------- DE STROOK (de dag) ---------- */
   .dag{position:relative;height:calc(var(--uur-h) * 24 + 100vh)}
-  .strook{position:absolute;left:0;right:0;top:50vh;height:calc(var(--uur-h) * 24)}
+  .strook{position:absolute;left:0;right:0;top:var(--kop-h,110px);height:calc(var(--uur-h) * 24)}
 
   /* uurschaal links */
   .tik{position:absolute;left:0;right:0;top:calc(var(--uur) * var(--uur-h));height:0;
@@ -82,11 +82,9 @@
 <header class="kop">
   <div>
     <div class="uur" id="uur">00:00</div>
-    <div class="titel">Koopverbod · Editie 5 · één dag</div>
   </div>
   <div class="mand" id="mand">in mandje<b id="bedrag">€0</b></div>
 </header>
-<div class="nu" aria-hidden="true"></div>
 
 <main class="dag">
   <div class="strook" id="strook">
@@ -163,7 +161,13 @@
   var strook = document.getElementById('strook');
   var uurEl = document.getElementById('uur'), bedragEl = document.getElementById('bedrag'), mandEl = document.getElementById('mand');
   var momenten = [].slice.call(strook.querySelectorAll('.moment'));
-  var SLOT = 23.9;                          // vanaf dit uur is het mandje weer leeg
+  var SLOT = 23.9;
+
+  /* 00:00 begint meteen onder de kop */
+  var kop = document.querySelector('.kop');
+  function kopHoogte(){ document.documentElement.style.setProperty('--kop-h', kop.offsetHeight + 'px'); }
+  kopHoogte(); addEventListener('resize', kopHoogte);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(kopHoogte);                          // vanaf dit uur is het mandje weer leeg
 
   /* uurschaal: een streepje per uur */
   for(var u = 0; u <= 24; u++){

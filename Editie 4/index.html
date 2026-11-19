@@ -8,113 +8,39 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
+<!-- De vorige versie (met de groene krasbollen) staat in index-oud.html -->
 <style>
   :root{
     --bg:#e2e2e2;
-    --bol:#bcdfca;
-    --lijn:#b4b4b4;
     --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
-    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    /* 1 eenheid = 1% van een 16:9 kader dat altijd in het scherm past */
-    --u:min(1vw, 1.7778vh);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:#000}
   body{font-family:var(--serif);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;touch-action:none}
 
-  /* ---------- AFTELLEN ---------- */
-  .wacht{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;background:var(--bg);
-         transition:opacity 1.2s ease}
-  .wacht.weg{opacity:0;pointer-events:none}
-  .wacht .opdracht{position:absolute;top:10vh;left:0;right:0;text-align:center;font-size:clamp(18px,2.2vw,36px)}
-  .wacht .getal{font-size:clamp(140px,34vh,420px);line-height:.9;font-variant-numeric:lining-nums tabular-nums}
-  .wacht .status{position:absolute;bottom:10vh;left:0;right:0;text-align:center;font-size:clamp(14px,1.2vw,19px);
-                 font-style:italic;min-height:1.4em;opacity:.65}
-  .ring{position:absolute;width:min(52vh,78vw);aspect-ratio:1;pointer-events:none}
+  .wacht{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .opdracht{position:absolute;top:10vh;left:0;right:0;text-align:center;font-size:clamp(18px,2.2vw,36px)}
+  .getal{position:relative;font-size:min(15vw,14.5vh);line-height:.9;font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.01em}
+  .status{position:absolute;bottom:10vh;left:0;right:0;text-align:center;font-size:clamp(14px,1.2vw,19px);
+          font-style:italic;min-height:1.4em;opacity:.65}
+  .ring{position:absolute;width:min(64vh,92vw);aspect-ratio:1;pointer-events:none}
   .ring circle{fill:none;stroke:#000;stroke-width:.4}
   .te-vroeg .getal{animation:schud .35s ease}
   @keyframes schud{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
-
-  /* ---------- DE PAGINA ---------- */
-  .pagina{position:fixed;inset:0;border:1px solid #000;opacity:0;transition:opacity 1.4s ease}
-  .pagina.aan{opacity:1}
-  .kader{position:absolute;left:50%;top:50%;width:calc(var(--u)*100);height:calc(var(--u)*56.25);transform:translate(-50%,-50%)}
-
-  .links{position:absolute;left:7.5%;top:7.6%;width:50%;font-family:var(--sans);font-weight:400;
-         font-size:calc(var(--u)*3.3);line-height:1.17;letter-spacing:-.003em}
-  .rechts{position:absolute;left:61.6%;top:8.6%;width:34%;font-size:calc(var(--u)*2.75);line-height:1.3}
-  .rechts em{font-style:italic}
-  .lijn{position:fixed;left:0;right:0;height:1px;background:var(--lijn)}
-  .totaal{position:absolute;left:0;right:0;top:37.5%;text-align:center;font-size:calc(var(--u)*2.35);line-height:1}
-
-  .bollen{position:absolute;left:6.65%;right:5.5%;top:55.3%;display:flex;justify-content:space-between}
-  .bol{position:relative;width:calc(var(--u)*16.4);aspect-ratio:1;border-radius:50%;overflow:hidden;
-       background:var(--bg)}
-  .bol.open{box-shadow:inset 0 0 0 1px var(--lijn)}
-  .bol .echt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
-             padding:0 15%;font-size:calc(var(--u)*1.32);line-height:1.25;font-style:italic}
-  .bol canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;transition:opacity .6s ease}
-  .bol.open canvas{opacity:0;pointer-events:none}
-
-  /* gsm rechtop */
-  @media (max-aspect-ratio:1/1){
-    html,body{overflow-y:auto;height:auto;min-height:100%}
-    body{touch-action:pan-y}
-    .bol canvas{touch-action:none}
-    .pagina{position:relative;inset:auto;min-height:100vh}
-    .kader{position:relative;left:0;top:0;width:auto;height:auto;transform:none;padding:max(64px,8vh) 7vw 6vh;
-           display:flex;flex-direction:column;gap:3.2vh}
-    .links,.rechts,.totaal,.bollen{position:static;width:auto}
-    .links{font-size:6.6vw}
-    .rechts{font-size:5.6vw}
-    .lijn{display:none}
-    .totaal{margin:1vh -7vw 0;padding-top:4vh;border-top:1px solid var(--lijn);font-size:5.4vw}
-    .bollen{flex-wrap:wrap;justify-content:center;gap:4vw;margin-top:2vh}
-    .bol{width:39vw}
-    .bol .echt{font-size:3.5vw;padding:0 12%}
-  }
 </style>
 </head>
 <body>
 
 <section class="wacht" id="wacht" aria-live="polite">
   <svg class="ring" viewBox="0 0 102 102" aria-hidden="true"><circle cx="51" cy="51" r="50"/></svg>
-  <p class="opdracht">Doe 10 seconden helemaal niets.</p>
-  <div class="getal" id="getal">10</div>
+  <p class="opdracht">Doe 4 uur helemaal niets.</p>
+  <div class="getal" id="getal">4:00:00</div>
   <p class="status" id="status"></p>
 </section>
 
-<main class="pagina" id="pagina" aria-hidden="true">
-  <div class="lijn" id="lijn"></div>
-  <div class="kader" id="kader">
-    <h1 class="links">10 seconden, zo lang duurt het om iets in je mandje te leggen</h1>
-    <p class="rechts">Zo lang duurt het deze week ook om dat <em>niet</em> te doen</p>
-    <p class="totaal">€0 uitgegeven, 5 keer bijna</p>
-    <div class="bollen" id="bollen"></div>
-  </div>
-</main>
-
 <script>
-/* ---------- INHOUD ----------
-   smoes = wat op de groene bol staat, echt = wat eronder verschijnt na het krassen.
-   De "echt"-teksten zijn voorbeelden: vervang ze door je eigen werkelijkheid. */
-var BOLLEN = [
-  { smoes: 'De verzendkosten zijn gratis vanaf €50, dus eigenlijk maak ik winst',
-    echt:  'Ik geef €50 uit om €4 verzendkosten te besparen.' },
-  { smoes: 'Mijn vorige versie is al bijna drie maanden oud',
-    echt:  'Hij werkt nog perfect. Drie maanden is niet oud.' },
-  { smoes: 'Als ik het nu niet koop, is het straks uitverkocht en heb ik er spijt van',
-    echt:  'De vorige keer was het uitverkocht. Een week later was ik het vergeten.' },
-  { smoes: 'Ik heb het echt nodig om die ene andere broek eindelijk te kunnen combineren',
-    echt:  'Die broek draag ik nooit. Daarom past er ook niets bij.' },
-  { smoes: 'Ik heb deze week al heel goed gespaard, dus ik mag mezelf belonen',
-    echt:  'Sparen om het daarna uit te geven, is geen sparen.' }
-];
-
-/* ---------- AFTELLEN ---------- */
-var DUUR = 10;
+var DUUR = 4 * 60 * 60;   // 4 uur, in seconden
 var wacht = document.getElementById('wacht'), getal = document.getElementById('getal'), status = document.getElementById('status');
-var pagina = document.getElementById('pagina');
 var start = performance.now(), klaar = false, pogingen = 0;
 var PLAAG = ['te vroeg.', 'zie je, moeilijk he.', 'net als op "koop nu" klikken.', 'nog eens.', 'geduld is ook sparen.'];
 
@@ -126,86 +52,18 @@ function teVroeg(){
 }
 ['mousemove','mousedown','keydown','wheel','touchstart'].forEach(function(t){ addEventListener(t, teVroeg, { passive: true }); });
 
+function tijd(sec){
+  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
 (function lus(t){
-  if(klaar) return;
   var rest = Math.max(0, DUUR - (t - start) / 1000);
-  getal.textContent = Math.ceil(rest);
-  if(rest === 0){ klaar = true; onthul(); return; }
+  getal.textContent = tijd(Math.ceil(rest));
+  if(rest === 0){ klaar = true; status.textContent = 'gelukt.'; return; }
   requestAnimationFrame(lus);
 })(start);
-
-function onthul(){
-  wacht.classList.add('weg');
-  pagina.classList.add('aan'); pagina.removeAttribute('aria-hidden');
-  maakBollen();
-  // menu pas nu laden: tijdens het aftellen zou het je toch maar doen bewegen
-  var s = document.createElement('script'); s.src = '../menu/menu.js'; document.body.appendChild(s);
-}
-
-/* ---------- LIJN (over de volle breedte, op de hoogte uit het ontwerp) ---------- */
-function zetLijn(){
-  var k = document.getElementById('kader').getBoundingClientRect(), staand = innerHeight > innerWidth;
-  document.getElementById('lijn').style.top = (staand ? k.top + innerWidth * .62 : k.top + k.height * .313) + 'px';
-}
-addEventListener('resize', zetLijn); zetLijn();
-
-/* ---------- KRASBOLLEN ---------- */
-function maakBollen(){
-  var wrap = document.getElementById('bollen');
-  BOLLEN.forEach(function(b){
-    var d = document.createElement('div'); d.className = 'bol';
-    d.innerHTML = '<div class="echt">' + b.echt + '</div><canvas aria-label="Smoes: ' + b.smoes + '. Kras weg om te zien wat er echt achter zit."></canvas>';
-    wrap.appendChild(d);
-    kras(d, d.querySelector('canvas'), b.smoes);
-  });
-}
-
-function kras(bol, c, tekst){
-  var ctx = c.getContext('2d'), dpr = Math.max(1, devicePixelRatio || 1), w, h, bezig = false, laatst = null, n = 0;
-  var serif = getComputedStyle(document.body).fontFamily;
-  function teken(){
-    var r = c.getBoundingClientRect(); w = r.width; h = r.height; if(!w) return;
-    c.width = w*dpr; c.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bol').trim() || '#bcdfca';
-    ctx.fillRect(0,0,w,h);
-    ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    var fs = w * .081; ctx.font = fs + 'px ' + serif;
-    var lijnen = breek(tekst, w * .82), lh = fs * 1.27, y0 = h/2 - (lijnen.length - 1) * lh / 2;
-    lijnen.forEach(function(t, j){ ctx.fillText(t, w/2, y0 + j*lh); });
-  }
-  function breek(t, max){
-    var woorden = t.split(' '), lijnen = [], r = '';
-    woorden.forEach(function(wd){ var p = r ? r + ' ' + wd : wd; if(ctx.measureText(p).width > max && r){ lijnen.push(r); r = wd; } else r = p; });
-    lijnen.push(r); return lijnen;
-  }
-  function veeg(x, y){
-    if(bol.classList.contains('open')) return;
-    ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.lineWidth = Math.max(18, w * .16);
-    ctx.beginPath(); ctx.moveTo(laatst ? laatst.x : x, laatst ? laatst.y : y); ctx.lineTo(x, y); ctx.stroke();
-    laatst = {x:x, y:y};
-    if(++n % 8 === 0) check();
-  }
-  function check(){
-    if(bol.classList.contains('open')) return;
-    var d = ctx.getImageData(0,0,c.width,c.height).data, leeg = 0, tot = 0, W = c.width, H = c.height, R = W/2;
-    for(var y=0; y<H; y+=6) for(var x=0; x<W; x+=6){
-      var dx = x-R, dy = y-R; if(dx*dx+dy*dy > R*R) continue;   // enkel binnen de cirkel tellen
-      tot++; if(d[(y*W+x)*4+3] === 0) leeg++;
-    }
-    if(leeg/tot > .5) bol.classList.add('open');
-  }
-  function pos(e){ var r = c.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
-  c.addEventListener('pointerdown', function(e){ bezig = true; laatst = null; c.setPointerCapture(e.pointerId); var p = pos(e); veeg(p.x,p.y); });
-  c.addEventListener('pointermove', function(e){ var p = pos(e); if(bezig || e.pointerType === 'mouse') veeg(p.x,p.y); });
-  c.addEventListener('pointerleave', function(){ laatst = null; });
-  c.addEventListener('pointerup', function(){ bezig = false; check(); });
-  c.addEventListener('pointercancel', function(){ bezig = false; });
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(teken);
-  teken();
-  addEventListener('resize', function(){ if(!bol.classList.contains('open')) teken(); });
-}
 </script>
+<script src="../menu/menu.js" defer></script>
 </body>
 </html>

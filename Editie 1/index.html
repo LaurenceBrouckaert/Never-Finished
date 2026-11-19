@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&display=swap" rel="stylesheet">
-<!-- De vorige versie van deze editie staat in index-oud.html -->
+<!-- Vorige versies van deze editie: index-oud.html (eerste) en index-v2-oud.html (met de nummertjes) -->
 <style>
   :root{
     --black:#000000;
@@ -18,6 +18,7 @@
     --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
     /* 1 eenheid = 1% van een 16:9 kader dat altijd in het scherm past */
     --u:min(1vw, 1.7778vh);
+    --rij:calc(100vh / 9);   /* 9 objecten tegelijk in beeld */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden;background:var(--beige);color:var(--black)}
@@ -30,60 +31,56 @@
   .link:hover{opacity:.6}
 
   /* ---------- BAND ---------- */
-  .band{position:absolute;left:0;right:0;top:0;height:29.7%;background:var(--green);
-        border:1px solid var(--black);overflow:hidden}
+  .band{display:none}
   .band h1{position:absolute;left:0;top:50%;transform:translateY(-50%);
         font-family:var(--sans);font-weight:700;font-size:calc(var(--u)*15.1);line-height:1;
         letter-spacing:-.005em;white-space:nowrap;color:var(--beige);
         -webkit-text-stroke:max(1px, calc(var(--u)*.09)) var(--black)}
 
   /* ---------- LINKS: UITLEG + EXCUSES ---------- */
-  .links{position:absolute;left:0;top:29.7%;bottom:0;width:41.1%;border:1px solid var(--black);border-top:0}
-  .intro{position:absolute;left:8.1%;right:16%;top:15%;font-size:calc(var(--u)*1.42);line-height:1.1}
-  .excuses{position:absolute;left:8.1%;right:19%;top:34%;bottom:9.5%;list-style:none;
+  .links{position:absolute;left:0;top:0;bottom:0;width:41.1%;border:1px solid var(--black);z-index:2;background:var(--beige)}
+  .intro{position:absolute;left:8.1%;right:12%;top:6%;font-size:calc(var(--u)*1.32);line-height:1.08;text-transform:uppercase}
+  .excuses{position:absolute;left:8.1%;right:10%;top:20%;bottom:8.5%;list-style:none;
            display:flex;flex-direction:column;justify-content:space-between}
-  .excuses li{display:flex;align-items:baseline;font-size:calc(var(--u)*1.42);line-height:1.38}
-  .excuses .n{font-family:var(--sans);font-weight:400;font-size:.95em;width:calc(var(--u)*3.95);flex:none}
-  .links .saved,.links .again{position:absolute;bottom:3%;font-size:calc(var(--u)*1.75);padding:0;display:none}
-  .links .saved{left:8.2%}
+  .excuse{font-size:calc(var(--u)*1.32);line-height:1.25;cursor:grab;touch-action:none;
+          align-self:flex-start;max-width:100%;padding:.15em .35em;margin:-.15em -.35em;border-radius:.3em;
+          transition:background-color .2s,opacity .3s}
+  .excuse:hover{background:rgba(0,0,0,.06)}
+  .excuse.gekozen{background:var(--green)}
+  .excuse.sleept{opacity:.25}
+  .excuse.klaar{opacity:.3;text-decoration:line-through;text-decoration-thickness:1px;cursor:default;background:none}
+
+  /* het excuus dat je meesleept */
+  .spook{position:fixed;left:0;top:0;z-index:50;pointer-events:none;max-width:min(380px,40vw);
+         font-size:calc(var(--u)*1.32);line-height:1.25;padding:.45em .8em;background:var(--green);
+         border:1px solid var(--black);border-radius:.3em;box-shadow:0 10px 22px rgba(0,0,0,.18);
+         transform:translate(-50%,-120%) rotate(-2deg)}
+
+  .links .saved,.links .again{position:absolute;bottom:2.5%;font-size:calc(var(--u)*1.6);padding:0;display:none}
+  .links .saved{left:8.1%}
   .links .again{right:8%}
   .done .links .saved,.done .links .again{display:block}
 
-  /* ---------- RECHTS: MATCHEN ---------- */
-  .rows{position:absolute;left:41.1%;right:0;top:29.7%;bottom:0;display:grid;grid-template-rows:repeat(5,1fr);margin-left:-1px}
-  .row{position:relative;display:flex;align-items:center;border:1px solid var(--black);border-top-color:transparent;
+  /* ---------- RECHTS: OBJECTEN OP EEN EINDELOZE LOOP ---------- */
+  .rechts{position:absolute;left:41.1%;right:0;top:0;bottom:0;overflow:hidden;margin-left:-1px}
+  .loop{position:absolute;left:0;right:0;top:0;will-change:transform}
+  .row{position:relative;height:var(--rij);display:flex;align-items:center;border:1px solid var(--black);
        margin-top:-1px;background:var(--beige);transition:background-color .45s ease}
-  .row + .row{border-top-color:var(--black)}
-  .row:first-child{margin-top:0}
   .row.solved{background:var(--green)}
-  .row.l1{padding-left:3.4%}
-  .row.r2{padding-left:6.6%}
-  .row.l3{padding-left:17.2%}
-  .row.r4{padding-left:5.3%}
-  .row.l5{padding-left:3.4%}
+  .row.doel{background:#d4e6d4}
+  .row.nee{animation:nee .4s ease}
+  @keyframes nee{20%,60%{transform:translateX(-1.2%)}40%,80%{transform:translateX(1.2%)}}
 
   .word{position:relative;display:inline-block;font-family:var(--sans);font-weight:700;
-        font-size:calc(var(--u)*3.95);line-height:1;letter-spacing:-.005em;white-space:nowrap;transition:transform .45s ease}
+        font-size:calc(var(--u)*4.15);line-height:1;letter-spacing:-.005em;white-space:nowrap;transition:transform .45s ease}
 
-  .num{position:absolute;top:-.32em;width:calc(var(--u)*1.25);
-       font-family:var(--serif);font-size:calc(var(--u)*1.55);line-height:1.1;text-align:center;
-       background:transparent;border:0;border-bottom:max(1px, calc(var(--u)*.08)) solid var(--black);
-       border-radius:0;color:var(--black);outline:none;padding:0;-webkit-appearance:none;appearance:none}
-  .num:focus{border-bottom-color:var(--black);background:rgba(202,240,206,.55)}
-  .after .num{left:calc(100% + var(--u)*1.1)}
-  .before .num{right:calc(100% + var(--u)*1.1)}
-  .num.wrong{animation:shake .4s ease}
-  @keyframes shake{20%,60%{transform:translateX(-25%)}40%,80%{transform:translateX(25%)}}
-
-  /* uitleg verschijnt onder het woord zodra het juist is */
-  .note{position:absolute;left:0;top:calc(100% + var(--u)*.55);white-space:nowrap;
-        font-family:var(--serif);font-weight:400;font-size:calc(var(--u)*1.35);line-height:1.25;
+  /* meer info verschijnt onder het woord zodra het juist is */
+  .note{position:absolute;left:0;top:calc(100% + var(--u)*.3);white-space:nowrap;
+        font-family:var(--serif);font-weight:400;font-size:calc(var(--u)*1.3);line-height:1.25;
         letter-spacing:-.01em;opacity:0;pointer-events:none;transition:opacity .45s ease .1s}
-  .note span{display:inline}
   .note span + span::before{content:" · "}
   .row.solved .note{opacity:1}
-  .row.solved .num{display:none}
-  .row.solved .word{transform:translateY(calc(var(--u)*-.9))}
+  .row.solved .word{transform:translateY(calc(var(--u)*-1.35))}
 
   /* ---------- RESULTAAT ---------- */
   .result{position:absolute;left:12.4%;right:12.1%;top:11.8%;bottom:12.8%;background:var(--black);
@@ -101,26 +98,20 @@
 
   /* ---------- GSM / SMAL SCHERM ---------- */
   @media (max-aspect-ratio:1/1){
-    .band{height:13%}
-    .links{left:0;right:0;width:auto;top:13%;bottom:auto;height:40%;border-right:1px solid var(--black)}
-    .intro{left:6%;right:6%;top:7%;font-size:4vw;line-height:1.1}
-    .excuses{left:6%;right:5%;top:27%;bottom:15%}
-    .excuses li{font-size:3.6vw}
-    .excuses .n{width:2.3em}
-    .links .saved,.links .again{bottom:4%;font-size:4.4vw}
-    .links .saved{left:6%}
-    .links .again{right:6%}
-    .rows{left:0;top:53%;margin-left:0}
-    .row + .row,.row:first-child{border-top-color:var(--black)}
-    .row.l1,.row.l5{padding-left:5%}
-    .row.r2,.row.r4{padding-left:11%}
-    .row.l3{padding-left:12%}
-    .word{font-size:6.6vw}
-    .num{width:5.6vw;font-size:4.8vw;top:-.35em}
-    .after .num{left:calc(100% + 2vw)}
-    .before .num{right:calc(100% + 2vw)}
-    .note{font-size:3.3vw;top:calc(100% + 1vw)}
-    .row.solved .word{transform:translateY(-1.4vh)}
+    :root{--rij:calc(50vh / 5)}
+    .links{left:0;right:0;width:auto;top:0;bottom:auto;height:50%;border-right:1px solid var(--black)}
+    .intro{left:5%;right:5%;top:76px;font-size:3vw}
+    .excuses{left:5%;right:4%;top:calc(76px + 9%);bottom:9%}
+    .excuse{font-size:3.1vw}
+    .spook{font-size:3.4vw;max-width:70vw}
+    .links .saved,.links .again{font-size:4vw;bottom:2%}
+    .links .saved{left:5%}
+    .links .again{right:5%}
+    .rechts{left:0;top:50%;margin-left:0}
+    .row{padding-left:5% !important}
+    .word{font-size:6.4vw}
+    .note{font-size:3.1vw;top:calc(100% + 1vw)}
+    .row.solved .word{transform:translateY(-1.2vh)}
 
     .result{left:5%;right:5%;top:20%;bottom:20%}
     .result .g{font-size:16.5vw}
@@ -133,126 +124,202 @@
 <body>
 
 <section class="screen" id="match">
-  <div class="band"><h1>KOOPVERBOD</h1></div>
 
-  <!-- links: uitleg en excuses -->
   <div class="links">
     <p class="intro">Match de excuses bij het object en kom zo te weten hoeveel ik spaarde en wat ik uitgaf deze week.</p>
-    <ol class="excuses">
-      <li><span class="n">1.</span><span>100 paar is toch net te weinig</span></li>
-      <li><span class="n">2.</span><span>Want 1 kleurtje is echt wel te weinig</span></li>
-      <li><span class="n">3.</span><span>Want ik doe zeker en vast iedere dag skincare</span></li>
-      <li><span class="n">4.</span><span>Zo een specifieke bovenstuk heb ik nog niet, (50 andere wel)</span></li>
-      <li><span class="n">5.</span><span>Heb er nog niet genoeg&nbsp; en zeker geen in suede dus …</span></li>
-    </ol>
+    <ol class="excuses" id="excuses"></ol>
     <button class="link saved" id="showResult">saved or spent</button>
     <button class="link again" id="again">opnieuw</button>
   </div>
 
-  <!-- rechts: objecten om te matchen -->
-  <div class="rows">
-    <div class="row l1" data-answer="5">
-      <span class="word after">BRUINE SUEDE JAS
-        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij bruine suede jas" autocomplete="off">
-        <span class="note"><span>139,00 euro</span><span>niet gekocht want te duur</span></span>
-      </span>
-    </div>
-    <div class="row r2" data-answer="4">
-      <span class="word before">GESTREEPTE SOFT TOP
-        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij gestreepte soft top" autocomplete="off">
-        <span class="note"><span>22,95 euro</span><span>niet gekocht want hoeveel</span><span>topjes heb je nodig</span></span>
-      </span>
-    </div>
-    <div class="row l3" data-answer="3">
-      <span class="word after">MILKY TONER
-        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij milky toner" autocomplete="off">
-        <span class="note"><span>9,99 euro</span><span>wil ik nog kopen dus wrs wel</span></span>
-      </span>
-    </div>
-    <div class="row r4" data-answer="1">
-      <span class="word before">ZWARTE SLEEHAK PUMPS
-        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij zwarte sleehak pumps" autocomplete="off">
-        <span class="note"><span>19,99 euro</span><span>oeps gekocht</span></span>
-      </span>
-    </div>
-    <div class="row l5" data-answer="2">
-      <span class="word after">BORDEAUX MASCARA
-        <input class="num" type="text" inputmode="numeric" maxlength="1" aria-label="Nummer excuus bij bordeaux mascara" autocomplete="off">
-        <span class="note"><span>4,99 euro</span><span>oeps gekocht</span></span>
-      </span>
-    </div>
+  <div class="rechts" id="rechts">
+    <div class="loop" id="loop"></div>
   </div>
 
   <div class="result" id="result" title="Klik om te sluiten">
     <div class="big g">GESPAARD</div>
-    <div class="amount">171,94</div>
+    <div class="amount" id="gespaard">0</div>
     <div class="bottom">
       <div class="big u">UITGEGEVEN</div>
-      <div class="spent">24,98</div>
+      <div class="spent" id="uitgegeven">0</div>
     </div>
   </div>
 </section>
 
 <script>
-  const match  = document.getElementById('match');
-  const result = document.getElementById('result');
-  const rows   = [...document.querySelectorAll('.row')];
+/* ===================== INHOUD =====================
+   EXCUSES: in de volgorde waarin ze links staan.
+   OBJECTEN: in de volgorde waarin ze rechts voorbijkomen.
+     excuus   = het nummer van het excuus dat erbij hoort (1 = het eerste excuus)
+     prijs    = in euro (gebruik een punt: 22.95)
+     gekocht  = true als je het toch kocht (telt bij UITGEGEVEN), anders telt het bij GESPAARD
+     waarom   = de uitleg die verschijnt als het juist is
+     inspring = hoe ver het woord naar rechts staat (in % van de kolom)
+   De objecten 6 t.e.m. 10 (prijs, waarom, gekocht) zijn VOORBEELDEN: vul je eigen gegevens in. */
+const EXCUSES = [
+  '100 paar is toch net te weinig',
+  'Want 1 kleurtje is echt wel te weinig',
+  'Want ik doe zeker en vast iedere dag skincare',
+  'Zo een specifieke bovenstuk heb ik nog niet, (50 andere wel)',
+  'Heb er nog niet genoeg&nbsp; en zeker geen in suede dus …',
+  'Als ik het nu niet koop, is het straks uitverkocht en heb ik er spijt van',
+  'De verzendkosten zijn gratis vanaf €50, dus eigenlijk maak ik winst',
+  'Ik heb het echt nodig om die ene andere broek eindelijk te kunnen combineren',
+  'Mijn vorige versie is al bijna drie maanden oud',
+  'Ik heb deze week al heel goed gespaard, dus ik mag mezelf belonen'
+];
+const OBJECTEN = [
+  { naam:'FRINGE JASJE',         excuus:10, prijs:54.99, gekocht:false, waarom:'niet gekocht want ik heb er al een in het zwart', inspring:38 },
+  { naam:'BRUINE SUEDE JAS',     excuus:5,  prijs:139,   gekocht:false, waarom:'niet gekocht want te duur',                         inspring:3.5 },
+  { naam:'GESTREEPTE SOFT TOP',  excuus:4,  prijs:22.95, gekocht:false, waarom:'niet gekocht want hoeveel topjes heb je nodig',     inspring:7 },
+  { naam:'MILKY TONER',          excuus:3,  prijs:9.99,  gekocht:false, waarom:'wil ik nog kopen dus wrs wel',                      inspring:17 },
+  { naam:'ZWARTE SLEEHAK PUMPS', excuus:1,  prijs:19.99, gekocht:true,  waarom:'oeps gekocht',                                      inspring:2.5 },
+  { naam:'BORDEAUX MASCARA',     excuus:2,  prijs:4.99,  gekocht:true,  waarom:'oeps gekocht',                                      inspring:3.5 },
+  { naam:'HIGH NECK TRENCH',     excuus:6,  prijs:69.95, gekocht:false, waarom:'niet gekocht want hij is nog steeds niet uitverkocht', inspring:20 },
+  { naam:'ZEBRA PRINT PUMPS',    excuus:8,  prijs:39.99, gekocht:false, waarom:'niet gekocht want die broek draag ik toch nooit',   inspring:4 },
+  { naam:'PLAID HOEDJE',         excuus:7,  prijs:12.99, gekocht:false, waarom:'niet gekocht want zonder hoedje geen €50',          inspring:39 },
+  { naam:'BLAUWE TRAINING',      excuus:9,  prijs:34.99, gekocht:false, waarom:'niet gekocht want de oude is nog perfect',          inspring:4.5 }
+];
+const SNELHEID = 26;   // pixels per seconde
 
-  function focusEerste(){
-    const first = rows.find(r => !r.classList.contains('solved'));
-    if (first && window.matchMedia('(pointer:fine)').matches) first.querySelector('.num').focus({ preventScroll: true });
+/* ===================== OPBOUW ===================== */
+const match = document.getElementById('match'), result = document.getElementById('result');
+const lijst = document.getElementById('excuses'), loop = document.getElementById('loop'), rechts = document.getElementById('rechts');
+const euro = n => n.toFixed(2).replace('.', ',');
+
+EXCUSES.forEach((t, i) => {
+  const li = document.createElement('li');
+  li.className = 'excuse'; li.dataset.nr = i + 1; li.innerHTML = t; li.tabIndex = 0;
+  lijst.appendChild(li);
+});
+
+// de objecten staan er twee keer na elkaar in, zo loopt de lijst naadloos rond
+function rij(o, i){
+  const d = document.createElement('div');
+  d.className = 'row'; d.dataset.id = i; d.dataset.answer = o.excuus;
+  d.style.paddingLeft = o.inspring + '%';
+  d.innerHTML = '<span class="word">' + o.naam +
+    '<span class="note"><span>' + euro(o.prijs) + ' euro</span><span>' + o.waarom + '</span></span></span>';
+  return d;
+}
+[0, 1].forEach(() => OBJECTEN.forEach((o, i) => loop.appendChild(rij(o, i))));
+const rijen = () => [...loop.querySelectorAll('.row')];
+
+// totalen voor de pop-up
+document.getElementById('gespaard').textContent   = euro(OBJECTEN.filter(o => !o.gekocht).reduce((s, o) => s + o.prijs, 0));
+document.getElementById('uitgegeven').textContent = euro(OBJECTEN.filter(o =>  o.gekocht).reduce((s, o) => s + o.prijs, 0));
+
+/* ===================== EINDELOZE LOOP ===================== */
+let y = 0, pauze = false, vorig = performance.now();
+function halve(){ return loop.scrollHeight / 2; }
+(function lus(t){
+  const dt = Math.min(.1, (t - vorig) / 1000); vorig = t;
+  if (!pauze && !matchMedia('(prefers-reduced-motion: reduce)').matches) y += SNELHEID * dt;
+  const h = halve(); if (h) { y = ((y % h) + h) % h; }
+  loop.style.transform = 'translate3d(0,' + (-y) + 'px,0)';
+  requestAnimationFrame(lus);
+})(vorig);
+// zelf scrollen kan ook
+rechts.addEventListener('wheel', e => { e.preventDefault(); y += e.deltaY; }, { passive:false });
+
+/* ===================== SLEPEN ===================== */
+let spook = null, sleep = null, gekozen = null;
+
+function rijOnder(x, yy){
+  const el = document.elementFromPoint(x, yy);
+  return el ? el.closest('.row') : null;
+}
+function markeerDoel(r){
+  rijen().forEach(x => x.classList.toggle('doel', !!r && x.dataset.id === r.dataset.id && !x.classList.contains('solved')));
+}
+
+lijst.addEventListener('pointerdown', e => {
+  const li = e.target.closest('.excuse'); if (!li || li.classList.contains('klaar')) return;
+  e.preventDefault();
+  sleep = { li, x:e.clientX, y:e.clientY, bezig:false, id:e.pointerId };
+  li.setPointerCapture(e.pointerId);
+});
+lijst.addEventListener('pointermove', e => {
+  if (!sleep) return;
+  if (!sleep.bezig && Math.hypot(e.clientX - sleep.x, e.clientY - sleep.y) > 6) {
+    sleep.bezig = true; pauze = true;
+    sleep.li.classList.add('sleept');
+    spook = document.createElement('div'); spook.className = 'spook'; spook.innerHTML = sleep.li.innerHTML;
+    document.body.appendChild(spook);
+    kies(null);
   }
-
-  function openResult(){
-    result.classList.add('show');
-    requestAnimationFrame(() => requestAnimationFrame(() => result.classList.add('in')));
+  if (!sleep.bezig) return;
+  spook.style.left = e.clientX + 'px'; spook.style.top = e.clientY + 'px';
+  markeerDoel(rijOnder(e.clientX, e.clientY));
+});
+function los(e){
+  if (!sleep) return;
+  const s = sleep; sleep = null;
+  if (s.bezig) {
+    spook.remove(); spook = null; s.li.classList.remove('sleept'); markeerDoel(null);
+    const r = rijOnder(e.clientX, e.clientY);
+    if (r) probeer(s.li, r);
+    pauze = false;
+  } else {
+    // gewoon tikken: kies het excuus, tik daarna op een object (handig op de gsm)
+    kies(gekozen === s.li ? null : s.li);
   }
-  function closeResult(){
-    result.classList.remove('in');
-    setTimeout(() => result.classList.remove('show'), 500);
+}
+lijst.addEventListener('pointerup', los);
+lijst.addEventListener('pointercancel', e => { if (sleep && sleep.bezig) { spook.remove(); spook = null; sleep.li.classList.remove('sleept'); markeerDoel(null); pauze = false; } sleep = null; });
+
+function kies(li){
+  if (gekozen) gekozen.classList.remove('gekozen');
+  gekozen = li; if (li) li.classList.add('gekozen');
+  pauze = !!li;
+}
+loop.addEventListener('click', e => {
+  const r = e.target.closest('.row'); if (!r || !gekozen) return;
+  const li = gekozen; kies(null); probeer(li, r);
+});
+lijst.addEventListener('keydown', e => {
+  const li = e.target.closest('.excuse');
+  if (li && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); kies(gekozen === li ? null : li); }
+});
+
+function probeer(li, r){
+  if (r.classList.contains('solved')) return;
+  const zelfde = rijen().filter(x => x.dataset.id === r.dataset.id);
+  if (r.dataset.answer === li.dataset.nr) {
+    zelfde.forEach(x => x.classList.add('solved'));
+    li.classList.add('klaar');
+    checkDone();
+  } else {
+    zelfde.forEach(x => { x.classList.remove('nee'); void x.offsetWidth; x.classList.add('nee'); });
   }
-  document.getElementById('showResult').addEventListener('click', openResult);
-  result.addEventListener('click', closeResult);
+}
 
-  rows.forEach(row => {
-    const input = row.querySelector('.num');
-    input.addEventListener('input', () => {
-      input.value = input.value.replace(/[^0-9]/g, '');
-      if (!input.value) return;
-      if (input.value === row.dataset.answer) {
-        row.classList.add('solved');
-        input.blur();
-        checkDone();
-        if (!match.classList.contains('done')) focusEerste();
-      } else {
-        input.classList.remove('wrong');
-        void input.offsetWidth;
-        input.classList.add('wrong');
-        setTimeout(() => { input.value = ''; input.classList.remove('wrong'); }, 450);
-      }
-    });
-  });
+/* ===================== RESULTAAT ===================== */
+function openResult(){
+  result.classList.add('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => result.classList.add('in')));
+}
+function closeResult(){
+  result.classList.remove('in');
+  setTimeout(() => result.classList.remove('show'), 500);
+}
+document.getElementById('showResult').addEventListener('click', openResult);
+result.addEventListener('click', closeResult);
 
-  let resultTimer;
-  document.getElementById('again').addEventListener('click', () => {
-    clearTimeout(resultTimer);
-    result.classList.remove('in', 'show');
-    match.classList.remove('done');
-    rows.forEach(r => {
-      r.classList.remove('solved');
-      const i = r.querySelector('.num');
-      i.value = '';
-      i.classList.remove('wrong');
-    });
-    focusEerste();
-  });
-
-  function checkDone(){
-    if (rows.every(r => r.classList.contains('solved'))) {
-      match.classList.add('done');
-      resultTimer = setTimeout(openResult, 1400);
-    }
+let resultTimer;
+function checkDone(){
+  if (rijen().every(r => r.classList.contains('solved'))) {
+    match.classList.add('done');
+    resultTimer = setTimeout(openResult, 1400);
   }
+}
+document.getElementById('again').addEventListener('click', () => {
+  clearTimeout(resultTimer);
+  result.classList.remove('in', 'show');
+  match.classList.remove('done');
+  rijen().forEach(r => r.classList.remove('solved', 'nee'));
+  lijst.querySelectorAll('.excuse').forEach(li => li.classList.remove('klaar'));
+});
 </script>
 <script>
 /* KOOPVERBOD altijd volledig tonen: verklein de titel als hij breder is dan de band */
