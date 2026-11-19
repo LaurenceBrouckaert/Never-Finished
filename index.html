@@ -74,6 +74,12 @@
     <div class="zak leeg" aria-label="Editie 6, binnenkort">
       <span class="foto"><img src="home/zak6.webp" alt="" draggable="false"></span><span class="nr">06</span><span class="later">binnenkort</span>
     </div>
+    <div class="zak leeg" aria-label="Editie 7, binnenkort">
+      <span class="foto"><img src="home/zak7.webp" alt="" draggable="false"></span><span class="nr">07</span><span class="later">binnenkort</span>
+    </div>
+    <div class="zak leeg" aria-label="Editie 8, binnenkort">
+      <span class="foto"><img src="home/zak8.webp" alt="" draggable="false"></span><span class="nr">08</span><span class="later">binnenkort</span>
+    </div>
   </div>
 </main>
 
@@ -96,8 +102,8 @@
     m.cx = w / 2;
     m.cy = h * (staand ? .50 : .52);
     m.rx = w * (staand ? .36 : .38);
-    m.ry = h * (staand ? .19 : .25);
-    m.zh = Math.min(h * (staand ? .19 : .25), w * (staand ? .34 : .17));   // hoogte zak vooraan
+    m.ry = h * (staand ? .22 : .25);
+    m.zh = Math.min(h * (staand ? .16 : .25), w * (staand ? .27 : .17));   // hoogte zak vooraan
     var root = document.documentElement.style;
     root.setProperty('--zak-h', m.zh + 'px');
     root.setProperty('--zak-b', m.zh * 1.15 + 'px');
