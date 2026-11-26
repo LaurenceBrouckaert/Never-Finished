@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
+<!-- De vorige homepagina (ring met titel) staat in index-oud.html -->
 <style>
   :root{
     --bg:#e2e2e2;
@@ -22,118 +23,203 @@
   .home{position:fixed;inset:0;cursor:grab}
   .home.sleept{cursor:grabbing}
 
-  /* titel in het midden van de ring */
-  .titel{position:absolute;left:50%;top:var(--titel-top,44%);transform:translate(-50%,-50%);
-         font-weight:400;font-size:clamp(30px,5.4vw,96px);line-height:1;letter-spacing:.01em;
-         white-space:nowrap;pointer-events:none;z-index:50}
-  .titel em{font-style:italic}
+  /* het rek: drie lagen, zodat de paal tussen de tassen vooraan en achteraan staat */
+  .laag{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  #achter{z-index:5} #paal{z-index:50} #voor{z-index:95}
 
-  .ring{position:absolute;inset:0}
+  /* een tas aan een haakje */
   .zak{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;
        text-decoration:none;color:var(--black);will-change:transform;
        -webkit-tap-highlight-color:transparent;outline:none}
   .zak .foto{display:block;width:var(--zak-b);height:var(--zak-h);
-             display:flex;align-items:flex-end;justify-content:center;
+             display:flex;align-items:flex-start;justify-content:center;
              transition:transform .3s cubic-bezier(.2,.8,.2,1)}
   .zak img{display:block;max-width:100%;max-height:100%;object-fit:contain;
            -webkit-user-drag:none;pointer-events:none;
-           filter:drop-shadow(0 10px 14px rgba(0,0,0,.10))}
-  .zak .nr{margin-top:.35em;font-size:var(--nr);line-height:1;letter-spacing:.02em}
-  .zak .later{font-size:calc(var(--nr) * .42);font-style:italic;line-height:1.3;opacity:0;
-              transition:opacity .2s}
-  a.zak:hover .foto,a.zak:focus-visible .foto{transform:translateY(-4%) scale(1.05)}
+           filter:drop-shadow(0 10px 14px rgba(0,0,0,.12))}
+  .zak .nr{margin-top:.3em;font-size:var(--nr);line-height:1;letter-spacing:.02em}
+  a.zak:hover .foto,a.zak:focus-visible .foto{transform:translateY(-3%) scale(1.05)}
   a.zak:focus-visible .nr{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px}
-  .zak.leeg{cursor:default}
-  .zak.leeg:hover .later{opacity:.7}
 
-  .hint{position:absolute;left:0;right:0;bottom:max(18px,3.2vh,env(safe-area-inset-bottom));
-        text-align:center;font-size:clamp(12px,1.05vw,17px);font-style:italic;opacity:.6;pointer-events:none}
+  .verborgen{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
   @media (prefers-reduced-motion:reduce){ .zak .foto{transition:none} }
 </style>
 </head>
 <body>
 <main class="home" id="home">
-  <h1 class="titel">Koop<em>verbod</em></h1>
-  <div class="ring" id="ring">
-    <a class="zak" href="Editie%201/index.html" aria-label="Editie 1">
-      <span class="foto"><img src="home/zak1.webp" alt="" draggable="false"></span><span class="nr">01</span><span class="later">&nbsp;</span>
-    </a>
-    <a class="zak" href="Editie%202/index.html" aria-label="Editie 2">
-      <span class="foto"><img src="home/zak2.webp" alt="" draggable="false"></span><span class="nr">02</span><span class="later">&nbsp;</span>
-    </a>
-    <a class="zak" href="Editie%203/index.html" aria-label="Editie 3">
-      <span class="foto"><img src="home/zak3.webp" alt="" draggable="false"></span><span class="nr">03</span><span class="later">&nbsp;</span>
-    </a>
-    <a class="zak" href="Editie%204/index.html" aria-label="Editie 4">
-      <span class="foto"><img src="home/zak4.webp" alt="" draggable="false"></span><span class="nr">04</span><span class="later">&nbsp;</span>
-    </a>
-    <a class="zak" href="Editie%205/index.html" aria-label="Editie 5">
-      <span class="foto"><img src="home/zak5.webp" alt="" draggable="false"></span><span class="nr">05</span><span class="later">&nbsp;</span>
-    </a>
-    <div class="zak leeg" aria-label="Editie 6, binnenkort">
-      <span class="foto"><img src="home/zak6.webp" alt="" draggable="false"></span><span class="nr">06</span><span class="later">binnenkort</span>
-    </div>
-    <div class="zak leeg" aria-label="Editie 7, binnenkort">
-      <span class="foto"><img src="home/zak7.webp" alt="" draggable="false"></span><span class="nr">07</span><span class="later">binnenkort</span>
-    </div>
-    <div class="zak leeg" aria-label="Editie 8, binnenkort">
-      <span class="foto"><img src="home/zak8.webp" alt="" draggable="false"></span><span class="nr">08</span><span class="later">binnenkort</span>
-    </div>
-  </div>
+  <h1 class="verborgen">Edities</h1>
+  <svg class="laag" id="achter" aria-hidden="true"></svg>
+  <svg class="laag" id="paal" aria-hidden="true"></svg>
+  <div id="zakken"></div>
+  <svg class="laag" id="voor" aria-hidden="true"></svg>
 </main>
 
 <script>
+/* =========================================================
+   EDITIES: enkel wat hier staat, hangt aan het rek.
+   Nieuwe editie? Voeg gewoon een regel toe, bv.
+   { nr: '06', href: 'Editie%206/index.html', zak: 'home/zak6.webp' },
+   (zak6, zak7 en zak8 liggen al klaar in de map home)
+   ========================================================= */
+var EDITIES = [
+  { nr: '01', href: 'Editie%201/index.html', zak: 'home/zak1.webp' },
+  { nr: '02', href: 'Editie%202/index.html', zak: 'home/zak2.webp' },
+  { nr: '03', href: 'Editie%203/index.html', zak: 'home/zak3.webp' },
+  { nr: '04', href: 'Editie%204/index.html', zak: 'home/zak4.webp' },
+  { nr: '05', href: 'Editie%205/index.html', zak: 'home/zak5.webp' }
+];
+
 (function () {
+  var NS = 'http://www.w3.org/2000/svg';
   var home = document.getElementById('home');
-  var zakken = [].slice.call(document.querySelectorAll('.zak'));
-  var N = zakken.length, STAP = Math.PI * 2 / N;
+  var achter = document.getElementById('achter'), paal = document.getElementById('paal'), voor = document.getElementById('voor');
   var stil = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var hoek = 0;          // huidige draaiing (radialen)
-  var snelheid = 0;      // radialen per frame (na slepen/scrollen)
-  var doel = null;       // hoek waar we naartoe draaien (bij focus/pijltjes)
-  var AUTO = stil ? 0 : 0.0016;
-  var rustTot = 0;       // na interactie even geen auto-draai
-  var m = {};            // maten
+  /* ---------- het rek ---------- */
+  var TOEREN = 1.5;                                   // hoeveel keer de spiraal rond de paal draait
+  var HAKEN = Math.max(18, EDITIES.length);           // haakjes op de spiraal
+  var STAP = Math.max(1, Math.min(3, Math.floor(HAKEN / EDITIES.length)));
+
+  /* tassen aanmaken */
+  var bak = document.getElementById('zakken');
+  var zakken = EDITIES.map(function (e, i) {
+    var a = document.createElement('a');
+    a.className = 'zak'; a.href = e.href; a.setAttribute('aria-label', 'Editie ' + parseInt(e.nr, 10));
+    a.innerHTML = '<span class="foto"><img src="' + e.zak + '" alt="" draggable="false"></span><span class="nr">' + e.nr + '</span>';
+    bak.appendChild(a);
+    return { el: a, haak: (i * STAP) % HAKEN, zwaai: 0, zv: 0 };
+  });
+  var N = zakken.length;
+
+  /* chroom: verlopen voor paal en knopjes */
+  function defs(svg) {
+    svg.innerHTML =
+      '<defs>' +
+      '<linearGradient id="chroom-' + svg.id + '" x1="0" x2="1" y1="0" y2="0">' +
+        '<stop offset="0" stop-color="#7d7d7d"/><stop offset=".35" stop-color="#fbfbfb"/>' +
+        '<stop offset=".55" stop-color="#c9c9c9"/><stop offset="1" stop-color="#6f6f6f"/></linearGradient>' +
+      '<radialGradient id="bol-' + svg.id + '" cx=".35" cy=".3" r=".75">' +
+        '<stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#cfcfcf"/><stop offset="1" stop-color="#6c6c6c"/></radialGradient>' +
+      '</defs><g class="g"></g>';
+    return svg.querySelector('.g');
+  }
+  var gA = defs(achter), gP = defs(paal), gV = defs(voor);
+
+  var hoek = 0, snelheid = 0, doel = null, rustTot = 0;
+  var AUTO = stil ? 0 : 0.0018;
+  var m = {};
 
   function maten() {
     var w = innerWidth, h = innerHeight, staand = h > w;
+    m.w = w; m.h = h;
     m.cx = w / 2;
-    m.cy = h * (staand ? .50 : .52);
-    m.rx = w * (staand ? .36 : .38);
-    m.ry = h * (staand ? .22 : .25);
-    m.zh = Math.min(h * (staand ? .16 : .25), w * (staand ? .27 : .17));   // hoogte zak vooraan
+    /* ingezoomd: de voet valt onder het scherm, het rek staat in het midden */
+    m.top = h * (staand ? .30 : .22);               // bovenste haakje
+    m.bodem = h * (staand ? .60 : .60);             // onderste haakje
+    m.R = Math.min(w * (staand ? .44 : .36), h * .62);
+    m.kantel = .2;                                  // hoe schuin je op de ring kijkt
+    m.zh = Math.min(h * (staand ? .2 : .25), w * (staand ? .34 : .18));
+    m.dik = Math.max(6, Math.min(13, h * .011));    // dikte van de buis
     var root = document.documentElement.style;
     root.setProperty('--zak-h', m.zh + 'px');
     root.setProperty('--zak-b', m.zh * 1.15 + 'px');
-    root.setProperty('--nr', Math.max(16, m.zh * .14) + 'px');
-    root.setProperty('--titel-top', (m.cy - m.zh * .35) / h * 100 + '%');
+    root.setProperty('--nr', Math.max(14, m.zh * .12) + 'px');
+    [achter, paal, voor].forEach(function (s) { s.setAttribute('viewBox', '0 0 ' + w + ' ' + h); });
   }
 
-  function teken() {
+  /* een punt op de spiraal, t van 0 (boven) tot 1 (onder) */
+  function punt(t) {
+    var a = hoek + t * TOEREN * Math.PI * 2;
+    var c = Math.cos(a);
+    return {
+      x: m.cx + Math.sin(a) * m.R,
+      y: m.top + t * (m.bodem - m.top) + c * m.R * m.kantel,
+      d: c,                                          // 1 = vooraan, -1 = achteraan
+      a: a
+    };
+  }
+
+  function el(g, naam, attr) {
+    var e = document.createElementNS(NS, naam);
+    for (var k in attr) e.setAttribute(k, attr[k]);
+    g.appendChild(e); return e;
+  }
+  function buis(g, d, dik) {                         // een chromen buis: donkere rand, lichte glans
+    el(g, 'path', { d: d, fill: 'none', stroke: '#6a6a6a', 'stroke-width': dik, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+    el(g, 'path', { d: d, fill: 'none', stroke: '#b4b4b4', 'stroke-width': dik * .62, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+    el(g, 'path', { d: d, fill: 'none', stroke: '#fbfbfb', 'stroke-width': dik * .22, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', transform: 'translate(0,' + (-dik * .18) + ')' });
+  }
+
+  function tekenRek() {
+    gA.innerHTML = ''; gP.innerHTML = ''; gV.innerHTML = '';
+    var D = m.dik;
+
+    /* paal, van de knop bovenaan tot de voet */
+    var px = m.cx, pTop = m.top - m.h * .08, pBodem = m.h * 1.05;   // paal loopt onder het scherm door
+    el(gP, 'rect', { x: px - D * .75, y: pTop, width: D * 1.5, height: pBodem - pTop, fill: 'url(#chroom-paal)' });
+    el(gP, 'circle', { cx: px, cy: pTop, r: D * 1.3, fill: 'url(#bol-paal)' });
+    /* klem waar de spiraal aan de paal vastzit */
+    el(gP, 'rect', { x: px - D * 1.2, y: m.top - D * 1.2, width: D * 2.4, height: D * 2.4, rx: D * .4, fill: 'url(#chroom-paal)' });
+    /* de spiraal zelf, in stukjes: achteraan of vooraan de paal */
+    var STUKS = 220, run = null, runVoor = null;
+    function sluit() { if (run) buis(runVoor ? gV : gA, run, D); run = null; }
+    var vorig = punt(0);
+    for (var i = 1; i <= STUKS; i++) {
+      var p = punt(i / STUKS), isVoor = (p.d + vorig.d) / 2 >= 0;
+      if (run === null || isVoor !== runVoor) { sluit(); run = 'M' + vorig.x.toFixed(1) + ' ' + vorig.y.toFixed(1); runVoor = isVoor; }
+      run += 'L' + p.x.toFixed(1) + ' ' + p.y.toFixed(1);
+      vorig = p;
+    }
+    sluit();
+
+    /* bolletje op het open uiteinde onderaan */
+    var e1 = punt(1);
+    el(e1.d >= 0 ? gV : gA, 'circle', { cx: e1.x, cy: e1.y, r: D * .95, fill: 'url(#bol-' + (e1.d >= 0 ? 'voor' : 'achter') + ')' });
+
+    /* steunarm bovenaan, van de paal naar het begin van de spiraal */
+    var s0 = punt(0);
+    buis(s0.d >= 0 ? gV : gA, 'M' + px + ' ' + m.top + ' L' + s0.x.toFixed(1) + ' ' + s0.y.toFixed(1), D * .9);
+
+    /* knopjes tussen de haakjes, en de haakjes zelf */
+    var BOLLEN = HAKEN * 2;
+    for (var b = 0; b <= BOLLEN; b++) {
+      var q = punt(b / BOLLEN * .97 + .015), g = q.d >= 0 ? gV : gA;
+      var s = .8 + .2 * (q.d + 1) / 2;
+      el(g, 'circle', { cx: q.x, cy: q.y - D * .45, r: D * .62 * s, fill: 'url(#bol-' + (q.d >= 0 ? 'voor' : 'achter') + ')' });
+      if (b % 2 === 1) {                               // om de twee knopjes een haakje
+        var hk = D * 2.2 * s, r = D * .7 * s;
+        el(g, 'path', { d: 'M' + q.x + ' ' + q.y + ' v' + hk + ' q0 ' + r * 1.4 + ' ' + r * 1.4 + ' ' + r * 1.4 + ' q' + r * 1.2 + ' 0 ' + r * 1.2 + ' -' + r * 1.4,
+          fill: 'none', stroke: '#8a8a8a', 'stroke-width': Math.max(1.5, D * .32), 'stroke-linecap': 'round' });
+      }
+    }
+  }
+
+  /* positie van haakje k (zelfde verdeling als de haakjes hierboven) */
+  function haakPunt(k) { return punt(((k * 2 + 1) / (HAKEN * 2)) * .97 + .015); }
+
+  function tekenZakken() {
+    var D = m.dik;
     for (var i = 0; i < N; i++) {
-      var a = hoek + i * STAP;
-      var diepte = (Math.cos(a) + 1) / 2;           // 1 = vooraan, 0 = achteraan
-      var s = .5 + .5 * diepte;
-      var x = m.cx + Math.sin(a) * m.rx;
-      var y = m.cy + Math.cos(a) * m.ry;
-      var el = zakken[i];
+      var z = zakken[i], q = haakPunt(z.haak);
+      var diepte = (q.d + 1) / 2;
+      var s = .62 + .38 * diepte;
       var bw = m.zh * 1.15;
-      // verankerd aan de onderkant van de foto (staat op de ring)
-      el.style.transform = 'translate(' + (x - bw / 2) + 'px,' + (y - m.zh) + 'px) scale(' + s.toFixed(4) + ')';
-      el.style.transformOrigin = (bw / 2) + 'px ' + m.zh + 'px';
-      el.style.zIndex = Math.round(diepte * 100);
-      el.style.opacity = (.55 + .45 * diepte).toFixed(3);
+      var y = q.y + D * 2.6 * (.8 + .2 * diepte);    // onderaan het haakje
+      z.el.style.transformOrigin = (bw / 2) + 'px 0px';
+      z.el.style.transform = 'translate(' + (q.x - bw / 2).toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + s.toFixed(4) + ') rotate(' + z.zwaai.toFixed(2) + 'deg)';
+      z.el.style.zIndex = Math.round(10 + diepte * 80);
+      z.el.style.filter = 'brightness(' + (.82 + .18 * diepte).toFixed(3) + ')';
     }
   }
 
   function norm(a) { return Math.atan2(Math.sin(a), Math.cos(a)); }
 
+  var vorigeHoek = 0;
   function lus(t) {
     if (doel !== null) {
       var d = norm(doel - hoek);
-      hoek += d * .12;
+      hoek += d * .1;
       if (Math.abs(d) < .001) { hoek = doel; doel = null; }
     } else if (!sleep.actief) {
       hoek += snelheid;
@@ -141,13 +227,19 @@
       if (Math.abs(snelheid) < .00005) snelheid = 0;
       if (t > rustTot && !snelheid) hoek += AUTO;
     }
-    teken();
+    /* tassen zwaaien mee als het rek draait */
+    var v = hoek - vorigeHoek; vorigeHoek = hoek;
+    zakken.forEach(function (z) {
+      var doelZwaai = stil ? 0 : Math.max(-14, Math.min(14, -v * 900));
+      z.zv += (doelZwaai - z.zwaai) * .06; z.zv *= .88; z.zwaai += z.zv;
+    });
+    tekenRek(); tekenZakken();
     requestAnimationFrame(lus);
   }
 
   function rust() { rustTot = performance.now() + 2500; }
 
-  // scrollen (muis & trackpad)
+  /* scrollen (muis & trackpad) */
   addEventListener('wheel', function (e) {
     e.preventDefault();
     doel = null; rust();
@@ -157,7 +249,7 @@
     snelheid = Math.max(-.12, Math.min(.12, snelheid));
   }, { passive: false });
 
-  // slepen (muis & touch)
+  /* slepen (muis & touch) */
   var sleep = { actief: false, x: 0, vorige: 0, t: 0, afstand: 0 };
   home.addEventListener('pointerdown', function (e) {
     if (e.button !== 0) return;
@@ -169,7 +261,7 @@
     var dx = e.clientX - sleep.vorige;
     sleep.afstand += Math.abs(dx);
     if (sleep.afstand > 6) home.classList.add('sleept');
-    var stap = -dx / (m.rx * 1.6);
+    var stap = dx / (m.R * 1.6);
     hoek += stap;
     var nu = performance.now(), dt = Math.max(8, nu - sleep.t);
     snelheid = stap * (16 / dt);
@@ -183,37 +275,37 @@
   addEventListener('pointerup', los);
   addEventListener('pointercancel', los);
 
-  // na slepen geen klik doorlaten
-  zakken.forEach(function (el, i) {
-    el.addEventListener('click', function (e) {
+  /* na slepen geen klik doorlaten; met tab naar een tas draait die naar voren */
+  zakken.forEach(function (z, i) {
+    z.el.addEventListener('click', function (e) {
       if (sleep.afstand > 6) { e.preventDefault(); sleep.afstand = 0; }
     });
-    // met tab naar een zak: draai hem naar voren
-    el.addEventListener('focus', function () { draaiNaar(i); });
-    if (el.tagName === 'A') el.tabIndex = 0;
+    z.el.addEventListener('focus', function () { draaiNaar(i); });
   });
 
+  function haakHoek(i) { return ((zakken[i].haak * 2 + 1) / (HAKEN * 2) * .97 + .015) * TOEREN * Math.PI * 2; }
   function draaiNaar(i) {
-    // zak i vooraan = hoek + i*STAP == 0 (mod 2π), kortste weg
-    doel = hoek + norm(-i * STAP - hoek);
+    /* tas i vooraan: hoek + haakHoek(i) == 0 (mod 2π), kortste weg */
+    doel = hoek + norm(-haakHoek(i) - hoek);
     snelheid = 0; rust();
   }
   function vooraan() {
     var best = 0, b = -2;
-    for (var i = 0; i < N; i++) { var c = Math.cos(hoek + i * STAP); if (c > b) { b = c; best = i; } }
+    for (var i = 0; i < N; i++) { var c = Math.cos(hoek + haakHoek(i)); if (c > b) { b = c; best = i; } }
     return best;
   }
 
   addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); draaiNaar((vooraan() + N - 1) % N); }
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); draaiNaar((vooraan() + 1) % N); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); draaiNaar((vooraan() + 1) % N); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); draaiNaar((vooraan() + N - 1) % N); }
     else if (e.key === 'Enter' && document.activeElement === document.body) {
-      var z = zakken[vooraan()]; if (z.href) location.href = z.href;
+      location.href = zakken[vooraan()].el.href;
     }
   });
 
-  addEventListener('resize', function () { maten(); teken(); });
-  maten(); teken();
+  addEventListener('resize', maten);
+  maten();
+  hoek = -.6; vorigeHoek = hoek;
   requestAnimationFrame(lus);
 })();
 </script>
