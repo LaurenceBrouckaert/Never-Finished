@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Koopverbod · Editie 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
+<!-- De eerste versie (straten in stof) staat in index-stof.html -->
+<style>
+  :root{
+    /* enkel deze vier kleuren */
+    --groen:#c6ddc6; --grijs:#e2e2e2; --zwart:#000000; --roze:#d37868;
+    --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --rand:clamp(14px,2.4vw,40px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--zwart);color:var(--zwart);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+  /* ---------- DE AFFICHE: links kleurvlakken, midden de kaart, rechts de legende ---------- */
+  .affiche{display:grid;grid-template-columns:minmax(240px,21vw) 1fr minmax(270px,23vw);
+           height:100svh;padding:calc(var(--rand) + 34px) var(--rand) var(--rand);gap:0}
+  .links,.rechts{display:flex;flex-direction:column;min-height:0}
+
+  /* links */
+  .links{background:var(--roze)}
+  .links .kop{padding:16px 18px 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.35}
+  .blokken{position:relative;flex:0 0 auto;height:clamp(120px,22vh,240px);margin:18px 0 0}
+  .blok{position:absolute}
+  .blok.stof{background-size:420% auto;background-position:50% 45%;background-repeat:no-repeat;background-color:var(--grijs)}
+  .titel{padding:14px 18px 0;font-family:var(--serif);font-weight:400;
+         font-size:clamp(40px,4.2vw,80px);line-height:.9;letter-spacing:-.015em;color:var(--zwart)}
+  .titel em{color:var(--grijs)}
+  .links .tekst{padding:18px;font-size:12px;line-height:1.45;overflow:auto}
+  .links .tekst p+p{margin-top:.9em}
+  .links .tekst b{font-weight:700}
+  .links .voet{margin-top:auto;padding:14px 18px 16px;font-size:11px;letter-spacing:.06em;border-top:1px solid var(--zwart)}
+
+  /* midden: de kaart */
+  .kaart{position:relative;background:var(--grijs);min-height:0;overflow:hidden}
+  .kaart svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .kaart .noord{position:absolute;right:14px;top:12px;font-family:var(--serif);font-size:22px;line-height:1;text-align:center}
+  .kaart .noord::after{content:"";display:block;width:1px;height:34px;background:var(--zwart);margin:4px auto 0}
+
+  /* straten als lijntekening */
+  .straat-rand{fill:none;stroke:var(--zwart);stroke-linecap:round;stroke-linejoin:round}
+  .straat-vul{fill:none;stroke:var(--grijs);stroke-linecap:round;stroke-linejoin:round}
+  .water{fill:none;stroke:var(--groen);stroke-linecap:round;stroke-linejoin:round}
+  .plein{fill:var(--grijs);stroke:var(--zwart);stroke-width:1.4}
+  .plek{font-family:var(--serif);font-style:italic;fill:var(--zwart)}
+  .snaam{font-family:var(--sans);letter-spacing:.14em;text-transform:uppercase;fill:var(--zwart);opacity:.55}
+
+  /* de route: in de volgorde van de nummers */
+  .route{fill:none;stroke:var(--roze);stroke-linecap:round;stroke-linejoin:round}
+
+  /* winkels: zwart bolletje met nummer */
+  .pin{cursor:pointer}
+  .pin circle.bol{fill:var(--zwart)}
+  .pin text{font-family:var(--sans);font-weight:700;fill:var(--grijs);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+  .pin .ring{fill:none;stroke:var(--roze);stroke-dasharray:7 6;opacity:0;transition:opacity .25s}
+  .pin .label rect{fill:var(--roze)}
+  .pin .label text{fill:var(--zwart);font-weight:400;text-anchor:start;letter-spacing:.02em}
+  .pin .label{opacity:0;transition:opacity .2s}
+  .pin:hover .label,.pin.aan .label{opacity:1}
+  .pin.aan .ring{opacity:1}
+  .pin:focus{outline:none} .pin:focus-visible circle.bol{stroke:var(--roze);stroke-width:4}
+
+  /* rechts: de legende */
+  .rechts{background:var(--zwart)}
+  .rechts .samen{background:var(--groen);padding:16px 18px 18px}
+  .rechts .samen small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .rechts .samen b{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(30px,2.8vw,48px);line-height:1;margin-top:.25em}
+  .rechts .samen span{display:block;font-size:12px;margin-top:.5em}
+  .lijst{background:var(--roze);flex:1;overflow-y:auto;padding:10px 14px 18px;border-top:1px solid var(--zwart)}
+  .lijst h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:400;margin:14px 4px 6px}
+  .lijst h3:first-child{margin-top:6px}
+  .item{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;width:100%;text-align:left;border:0;background:none;
+        font:inherit;color:inherit;cursor:pointer;padding:7px 4px;border-radius:6px}
+  .item .nr{width:26px;height:26px;border-radius:50%;background:var(--zwart);color:var(--grijs);display:grid;place-items:center;
+            font-size:12px;font-weight:700}
+  .item strong{display:block;font-size:13px;line-height:1.2}
+  .item small{display:block;font-size:11px;line-height:1.3;opacity:.75}
+  .item:hover,.item.aan{background:rgba(0,0,0,.08)}
+  .item:focus-visible{outline:1px solid var(--zwart)}
+  .kleren{display:none;margin:6px 0 4px 40px;border-top:1px dashed var(--zwart)}
+  .item.aan + .kleren{display:block}
+  .kleren li{list-style:none;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--zwart)}
+  .kleren img{width:44px;height:52px;object-fit:contain}
+  .kleren span{font-family:var(--serif);font-size:16px;line-height:1.1}
+  .kleren em{font-style:normal;font-size:12px}
+  .kleren .tot{display:block;text-align:right;font-family:var(--serif);font-size:15px;padding:6px 0 2px}
+
+  /* telefoon: gestapeld, zoals een gevouwen kaart die je openvouwt */
+  @media (max-aspect-ratio:1/1){
+    .affiche{display:flex;flex-direction:column;height:auto;padding:calc(var(--rand) + 56px) var(--rand) var(--rand)}
+    .blokken{height:150px}
+    .titel{font-size:64px}
+    .kaart{aspect-ratio:3/4}
+    .lijst{overflow:visible}
+  }
+</style>
+</head>
+<body>
+
+<div class="affiche">
+
+  <!-- LINKS: kleurvlakken en uitleg -->
+  <section class="links">
+    <div class="kop">Editie 06 · de plaats<br>Gent, centrum</div>
+    <h1 class="titel">Waar mijn <em>kast</em> woont</h1>
+    <div class="blokken" aria-hidden="true">
+      <div class="blok" style="left:0;top:0;width:58%;height:30%;background:var(--zwart)"></div>
+      <div class="blok stof" style="left:58%;top:0;width:42%;height:52%;background-image:url('../Editie%202/g/22.webp')"></div>
+      <div class="blok" style="left:0;top:30%;width:40%;height:46%;background:var(--groen)"></div>
+      <div class="blok stof" style="left:0;top:76%;width:22%;height:24%;background-image:url('../Editie%202/g/18.webp')"></div>
+      <div class="blok" style="left:22%;top:86%;width:40%;height:14%;background:var(--grijs)"></div>
+      <div class="blok stof" style="left:74%;top:72%;width:26%;height:28%;background-image:url('../Editie%202/g/17.webp')"></div>
+    </div>
+    <div class="tekst">
+      <p>Elk stuk in mijn kast komt ergens vandaan. Op deze kaart staat elke winkel waar hij echt staat: de <b>Veldstraat</b> als één lange rij, <b>Think Twice</b> drie keer verspreid, en wat online kwam aan de rand, in de richting van het pakje.</p>
+      <p>De roze lijn is de route langs alle winkels. Klik op een nummer en je ziet wat ik er kocht.</p>
+    </div>
+    <div class="voet">● nieuw &nbsp; ◉ tweedehands &nbsp; ↗ online</div>
+  </section>
+
+  <!-- MIDDEN: de kaart -->
+  <main class="kaart" id="kaart">
+    <svg id="svg" role="img" aria-label="Kaart van het centrum van Gent met de winkels waar mijn kleren vandaan komen"></svg>
+    <div class="noord" aria-hidden="true">N</div>
+  </main>
+
+  <!-- RECHTS: legende -->
+  <section class="rechts">
+    <div class="samen"><small>In mijn kast</small><b id="totaal">€0</b><span id="aantal"></span></div>
+    <div class="lijst" id="lijst"></div>
+  </section>
+</div>
+
+<script>
+/* =========================================================
+   KAART: het centrum van Gent. Alles staat op zijn echte plek (breedte, lengte).
+   ========================================================= */
+var VAK = { noord: 51.0592, zuid: 51.0452, west: 3.7150, oost: 3.7305 };
+var BEELD = '../Editie%202/g/';
+
+/* straten: [breedte, lengte], dik = hoe breed de straat getekend wordt */
+var STRATEN = [
+  { naam: 'Veldstraat', dik: 26, pt: [[51.0542,3.7213],[51.0521,3.7217],[51.0502,3.7221],[51.0486,3.7224]] },
+  { naam: 'Langemunt', dik: 22, pt: [[51.0547,3.7217],[51.0556,3.7230],[51.0565,3.7249],[51.0570,3.7261]] },
+  { naam: 'Hoogpoort', dik: 18, pt: [[51.0544,3.7216],[51.0540,3.7235],[51.0534,3.7254],[51.0530,3.7266]] },
+  { naam: 'Burgstraat', dik: 16, pt: [[51.0549,3.7209],[51.0560,3.7203],[51.0572,3.7200]] },
+  { naam: 'Zonnestraat', dik: 16, pt: [[51.0486,3.7224],[51.0489,3.7240]] },
+  { naam: 'Kortedagsteeg', dik: 10, pt: [[51.0501,3.7222],[51.0497,3.7236]] },
+  { naam: 'Brabantdam', dik: 20, pt: [[51.0491,3.7254],[51.0478,3.7263],[51.0466,3.7270],[51.0447,3.7277]] },
+  { naam: 'Nederkouter', dik: 20, pt: [[51.0503,3.7206],[51.0486,3.7201],[51.0468,3.7197],[51.0447,3.7194]] },
+  { naam: 'Ajuinlei', dik: 12, pt: [[51.0528,3.7186],[51.0514,3.7186],[51.0503,3.7189]] },
+  { naam: 'Hoornstraat', dik: 10, pt: [[51.0511,3.7219],[51.0512,3.7240]] },
+  { naam: 'Volderstraat', dik: 12, pt: [[51.0520,3.7217],[51.0517,3.7246]] },
+  { naam: 'Mageleinstraat', dik: 12, pt: [[51.0528,3.7216],[51.0527,3.7240],[51.0530,3.7262]] },
+  { naam: 'Limburgstraat', dik: 12, pt: [[51.0530,3.7268],[51.0519,3.7277],[51.0508,3.7286]] },
+  { naam: 'Vlaanderenstraat', dik: 14, pt: [[51.0505,3.7255],[51.0497,3.7275],[51.0489,3.7300],[51.0482,3.7330]] },
+  { naam: 'Kraanlei', dik: 12, pt: [[51.0581,3.7218],[51.0583,3.7240],[51.0580,3.7258]] },
+  { naam: 'Sint-Michielsstraat', dik: 14, pt: [[51.0541,3.7204],[51.0538,3.7175],[51.0535,3.7140],[51.0532,3.7120]] },
+  { naam: 'Hoogstraat', dik: 14, pt: [[51.0560,3.7200],[51.0566,3.7170],[51.0572,3.7140],[51.0577,3.7120]] },
+  { naam: 'Kortrijksepoortstraat', dik: 12, pt: [[51.0468,3.7197],[51.0460,3.7180],[51.0452,3.7160],[51.0447,3.7148]] },
+  { naam: 'Sint-Pietersnieuwstraat', dik: 12, pt: [[51.0517,3.7246],[51.0500,3.7247],[51.0480,3.7246],[51.0447,3.7243]] },
+  { naam: 'Belfortstraat', dik: 10, pt: [[51.0547,3.7230],[51.0555,3.7258],[51.0560,3.7290],[51.0565,3.7330]] },
+  { naam: 'Kouter', dik: 14, pt: [[51.0489,3.7240],[51.0491,3.7254]] }
+];
+var LEIE = [[51.0447,3.7183],[51.0470,3.7188],[51.0495,3.7192],[51.0515,3.7189],[51.0530,3.7192],[51.0545,3.7202],
+            [51.0560,3.7206],[51.0573,3.7213],[51.0582,3.7228],[51.0584,3.7247],[51.0579,3.7266],[51.0590,3.7300],[51.0598,3.7330]];
+var PLEKKEN = [
+  { naam: 'Korenmarkt',  pt: [51.0545,3.7213], r: 30 },
+  { naam: 'Vrijdagmarkt',pt: [51.0571,3.7262], r: 40 },
+  { naam: 'Kouter',      pt: [51.0491,3.7247], r: 38, onder: true },
+  { naam: 'Sint-Baafs',  pt: [51.0530,3.7268], r: 26 },
+  { naam: 'Belfort',     pt: [51.0537,3.7247], r: 14, onder: true },
+  { naam: 'Gravensteen', pt: [51.0573,3.7206], r: 30, vierkant: true }
+];
+
+/* =========================================================
+   WINKELS, genummerd in de volgorde van de route.
+   n = nummer van de foto in Editie 2/g. Prijzen en herkomst zijn voorlopig verzonnen.
+   ========================================================= */
+var WINKELS = [
+  { naam: 'Primark', adres: 'Langemunt 54', pt: [51.0562,3.7243], kleren: [
+      { n: 21, naam: 'Longsleeve met print', prijs: 9 } ] },
+  { naam: '& Other Stories', adres: 'Veldstraat 2', pt: [51.0538,3.7214], kleren: [
+      { n: 7, naam: 'Witte blouse', prijs: 69 }, { n: 8, naam: 'Wit hemd', prijs: 59 } ] },
+  { naam: 'Pull&Bear', adres: 'Veldstraat 18', pt: [51.0531,3.7215], kleren: [
+      { n: 20, naam: 'Raglanshirt', prijs: 19.99 }, { n: 30, naam: 'Camo T-shirt', prijs: 15.99 } ] },
+  { naam: 'Zara', adres: 'Veldstraat 31-37', pt: [51.0524,3.7217], kleren: [
+      { n: 1, naam: 'Paarse V-hals trui', prijs: 35.95 }, { n: 13, naam: 'Zwarte top met kant', prijs: 25.95 },
+      { n: 29, naam: 'Bessenrode longsleeve', prijs: 17.95 } ] },
+  { naam: 'Bershka', adres: 'Veldstraat 56', pt: [51.0516,3.7219], kleren: [
+      { n: 28, naam: 'Paarse wikkeltop', prijs: 15.99 }, { n: 15, naam: 'Zwarte rok', prijs: 22.99 } ] },
+  { naam: 'Monki', adres: 'Veldstraat 62', pt: [51.0511,3.7219], kleren: [
+      { n: 22, naam: 'Gestreepte trui', prijs: 30 }, { n: 9, naam: 'Grijze sweater', prijs: 25 } ] },
+  { naam: 'Mango', adres: 'Veldstraat 67', pt: [51.0506,3.7220], kleren: [
+      { n: 31, naam: 'Kaki jas', prijs: 79.99 }, { n: 3, naam: 'Roze windjack', prijs: 49.99 } ] },
+  { naam: 'COS', adres: 'Kortedagsteeg 2F', pt: [51.0498,3.7233], kleren: [
+      { n: 6, naam: 'Grijze plooitop', prijs: 89 }, { n: 5, naam: 'Rokje met veren', prijs: 115 } ] },
+  { naam: 'H&M', adres: 'Veldstraat 94', pt: [51.0491,3.7223], kleren: [
+      { n: 19, naam: 'Blauwe sweater', prijs: 24.99 } ] },
+  { naam: 'Think Twice', adres: 'Brabantdam 14', pt: [51.0485,3.7259], tweedehands: true, kleren: [
+      { n: 2, naam: 'Sweater met kikker', prijs: 8 }, { n: 4, naam: 'Bolivia-longsleeve', prijs: 6 },
+      { n: 18, naam: 'Geruite hoodie', prijs: 10 } ] },
+  { naam: 'Think Twice', adres: 'Nederkouter 118', pt: [51.0470,3.7197], tweedehands: true, kleren: [
+      { n: 10, naam: 'Paisleyrok', prijs: 7 }, { n: 25, naam: 'Jeans met bloemen', prijs: 12 },
+      { n: 26, naam: 'Luipaardbroek', prijs: 9 } ] },
+  { naam: 'Think Twice', adres: 'Ajuinlei 15A', pt: [51.0518,3.7192], tweedehands: true, kleren: [
+      { n: 24, naam: 'College-sweater', prijs: 8 }, { n: 12, naam: 'Camobroek', prijs: 11 },
+      { n: 11, naam: 'Beige cargobroek', prijs: 10 } ] },
+
+  /* online: aan de rand van de kaart, in de richting waar het pakje vandaan komt */
+  { naam: 'ASOS', adres: 'online · uit Londen', ver: [51.5072,-0.1276], kleren: [
+      { n: 23, naam: 'Ripped jeans, donker', prijs: 42 }, { n: 32, naam: 'Ripped jeans, licht', prijs: 38 },
+      { n: 27, naam: 'Paarse broek', prijs: 32 } ] },
+  { naam: 'Vinted', adres: 'online · uit Vilnius', ver: [54.6872,25.2797], tweedehands: true, kleren: [
+      { n: 16, naam: 'Stockholm-sweater', prijs: 25 }, { n: 17, naam: 'Luipaardvest', prijs: 18 },
+      { n: 0, naam: 'Gestreepte V-trui', prijs: 14 }, { n: 14, naam: 'Bedrukte broek', prijs: 9 } ] }
+];
+
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('svg');
+  var midLat = (VAK.noord + VAK.zuid) / 2;
+  var M_LAT = 111200, M_LON = 111320 * Math.cos(midLat * Math.PI / 180);
+  var W = (VAK.oost - VAK.west) * M_LON, H = (VAK.noord - VAK.zuid) * M_LAT;      // in meter
+  svg.setAttribute('viewBox', '0 0 ' + W.toFixed(0) + ' ' + H.toFixed(0));
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  function xy(p){ return [ (p[1] - VAK.west) * M_LON, (VAK.noord - p[0]) * M_LAT ]; }
+  function d(pts){ return pts.map(function(p, i){ var q = xy(p); return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(''); }
+  function el(naam, attr, ouder){
+    var e = document.createElementNS(NS, naam);
+    for(var k in attr) e.setAttribute(k, attr[k]);
+    (ouder || svg).appendChild(e); return e;
+  }
+  function euro(n){ return '€' + (Math.round(n * 100) / 100).toFixed(n % 1 ? 2 : 0).replace('.', ','); }
+
+  var defs = el('defs', {});
+  var gWater = el('g', {}), gRand = el('g', {}), gVul = el('g', {}), gPlein = el('g', {}), gTekst = el('g', {}), gRoute = el('g', {}), gPins = el('g', {});
+
+  /* de Leie */
+  el('path', { class: 'water', d: d(LEIE), 'stroke-width': 58 }, gWater);
+  el('path', { id: 'pad-leie', d: d(LEIE.slice(0, 7)), fill: 'none' }, defs);
+  var lt = el('text', { class: 'plek', 'font-size': 30, dy: 10 }, gTekst);
+  var ltp = el('textPath', { href: '#pad-leie', startOffset: '30%' }, lt); ltp.textContent = 'Leie';
+
+  /* straten: zwarte rand, grijze vulling = lijntekening */
+  STRATEN.forEach(function(s){
+    el('path', { class: 'straat-rand', d: d(s.pt), 'stroke-width': s.dik + 2.6 }, gRand);
+    el('path', { class: 'straat-vul', d: d(s.pt), 'stroke-width': s.dik }, gVul);
+    if(s.pt.length > 2 || s.naam.length < 9){
+      var a = xy(s.pt[0]), z = xy(s.pt[s.pt.length - 1]);
+      var pts = (z[0] < a[0] - 5 || (Math.abs(z[0] - a[0]) < 5 && z[1] > a[1])) ? s.pt.slice().reverse() : s.pt;
+      var id = 'pad-' + s.naam.replace(/\W/g, '');
+      el('path', { id: id, d: d(pts), fill: 'none' }, defs);
+      var fs = Math.max(10, s.dik * .5);
+      var t = el('text', { class: 'snaam', 'font-size': fs, dy: fs * .35 }, gTekst);
+      var tp = el('textPath', { href: '#' + id, startOffset: '50%', 'text-anchor': 'middle' }, t); tp.textContent = s.naam;
+    }
+  });
+
+  /* pleinen en gebouwen */
+  PLEKKEN.forEach(function(p){
+    var q = xy(p.pt);
+    if(p.vierkant) el('rect', { class: 'plein', x: q[0] - p.r, y: q[1] - p.r, width: p.r * 2, height: p.r * 2 }, gPlein);
+    else el('circle', { class: 'plein', cx: q[0], cy: q[1], r: p.r }, gPlein);
+    var t = el('text', { class: 'plek', x: q[0], y: p.onder ? q[1] + p.r + 26 : q[1] - p.r - 9, 'text-anchor': 'middle', 'font-size': 22 }, gTekst);
+    t.textContent = p.naam;
+  });
+
+  /* schaal */
+  el('path', { d: 'M' + (W - 150) + ' ' + (H - 34) + ' h100 M' + (W - 150) + ' ' + (H - 40) + ' v12 M' + (W - 50) + ' ' + (H - 40) + ' v12', stroke: '#000', 'stroke-width': 1.5, fill: 'none' }, gTekst);
+  var sT = el('text', { class: 'snaam', x: W - 100, y: H - 46, 'text-anchor': 'middle', 'font-size': 11 }, gTekst); sT.textContent = '100 m';
+
+  /* richting en afstand van Gent naar een verre stad */
+  function richting(van, naar){
+    var r = Math.PI / 180, f1 = van[0] * r, f2 = naar[0] * r, dl = (naar[1] - van[1]) * r;
+    return Math.atan2(Math.sin(dl) * Math.cos(f2), Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl));
+  }
+  function afstand(van, naar){
+    var r = Math.PI / 180, a1 = (naar[0] - van[0]) * r, a2 = (naar[1] - van[1]) * r;
+    var a = Math.pow(Math.sin(a1 / 2), 2) + Math.cos(van[0] * r) * Math.cos(naar[0] * r) * Math.pow(Math.sin(a2 / 2), 2);
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  var midden = [midLat, (VAK.oost + VAK.west) / 2];
+
+  /* posities van alle winkels */
+  WINKELS.forEach(function(w){
+    if(w.ver){
+      var h = richting(midden, w.ver), dx = Math.sin(h), dy = -Math.cos(h), m = 60, cx = W / 2, cy = H / 2;
+      var t = Math.min(dx ? ((dx > 0 ? W - m : m) - cx) / dx : 1e9, dy ? ((dy > 0 ? H - m : m) - cy) / dy : 1e9);
+      w.xy = [cx + dx * t, cy + dy * t]; w.pijl = [dx, dy];
+      w.adres += ', ' + Math.round(afstand(midden, w.ver) / 10) * 10 + ' km';
+    } else w.xy = xy(w.pt);
+  });
+
+  /* de route langs de winkels in de stad, in de volgorde van de nummers */
+  var inStad = WINKELS.filter(function(w){ return !w.ver; });
+  el('path', { class: 'route', d: inStad.map(function(w, i){ return (i ? 'L' : 'M') + w.xy[0].toFixed(1) + ' ' + w.xy[1].toFixed(1); }).join(''),
+               'stroke-width': 9 }, gRoute);
+
+  /* pins op de kaart en items in de legende */
+  var lijst = document.getElementById('lijst'), pins = [], items = [], totaal = 0, stuks = 0;
+  var R = 24;
+  function kop(t){ var h = document.createElement('h3'); h.textContent = t; lijst.appendChild(h); }
+  WINKELS.forEach(function(w, i){
+    if(i === 0) kop('In de stad');
+    if(w.ver && !WINKELS[i - 1].ver) kop('Online');
+    var nr = i + 1, x = w.xy[0], y = w.xy[1];
+
+    /* pin */
+    var g = el('g', { class: 'pin', tabindex: 0, role: 'button', 'aria-label': nr + '. ' + w.naam + ', ' + w.adres }, gPins);
+    el('circle', { class: 'ring', cx: x, cy: y, r: R * 3.4, 'stroke-width': 2.5 }, g);
+    if(w.pijl){
+      var px = x + w.pijl[0] * 56, py = y + w.pijl[1] * 56;
+      el('path', { d: 'M' + (x + w.pijl[0] * R) + ' ' + (y + w.pijl[1] * R) + ' L' + px + ' ' + py, stroke: '#000', 'stroke-width': 2.5, fill: 'none' }, g);
+      var hk = Math.atan2(w.pijl[1], w.pijl[0]), a1 = hk + 2.6, a2 = hk - 2.6;
+      el('path', { d: 'M' + px + ' ' + py + ' l' + Math.cos(a1) * 11 + ' ' + Math.sin(a1) * 11 + ' M' + px + ' ' + py + ' l' + Math.cos(a2) * 11 + ' ' + Math.sin(a2) * 11,
+                   stroke: '#000', 'stroke-width': 2.5, fill: 'none' }, g);
+    }
+    el('circle', { class: 'bol', cx: x, cy: y, r: R }, g);
+    if(w.tweedehands) el('circle', { cx: x, cy: y, r: R + 4, fill: 'none', stroke: '#000', 'stroke-width': 1.5 }, g);
+    var tn = el('text', { x: x, y: y + .5, 'font-size': 21 }, g); tn.textContent = nr;
+
+    /* naamkaartje, roze zoals de labels op een route */
+    var lab = el('g', { class: 'label' }, g);
+    var naarLinks = x > W * .62;
+    var bw = w.naam.length * 12 + 24;
+    var lx = naarLinks ? x - R - 8 - bw : x + R + 8;
+    el('rect', { x: lx, y: y - 18, width: bw, height: 36 }, lab);
+    var tl = el('text', { 'font-size': 21, x: lx + 12, y: y + 1 }, lab); tl.textContent = w.naam;
+
+    /* legende */
+    var b = document.createElement('button');
+    b.className = 'item';
+    var som = w.kleren.reduce(function(s, k){ return s + k.prijs; }, 0);
+    totaal += som; stuks += w.kleren.length;
+    b.innerHTML = '<span class="nr">' + nr + '</span><span><strong>' + w.naam + '</strong><small>' + w.adres + '<br>' +
+                  w.kleren.length + (w.kleren.length === 1 ? ' stuk' : ' stukken') + ' · ' + euro(som) + (w.tweedehands ? ' · tweedehands' : '') + '</small></span>';
+    var ul = document.createElement('ul'); ul.className = 'kleren';
+    ul.innerHTML = w.kleren.map(function(k){
+      return '<li><img src="' + BEELD + k.n + '.webp" alt="" loading="lazy"><span>' + k.naam + '</span><em>' + euro(k.prijs) + '</em></li>';
+    }).join('') + '<span class="tot">samen ' + euro(som) + '</span>';
+    lijst.appendChild(b); lijst.appendChild(ul);
+
+    function kies(scroll){
+      var aan = !b.classList.contains('aan');
+      items.forEach(function(it){ it.classList.remove('aan'); });
+      pins.forEach(function(p){ p.classList.remove('aan'); });
+      if(aan){ b.classList.add('aan'); g.classList.add('aan'); gPins.appendChild(g); if(scroll) b.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    }
+    b.addEventListener('click', function(){ kies(false); });
+    g.addEventListener('click', function(){ kies(true); });
+    g.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); kies(true); } });
+    pins.push(g); items.push(b);
+  });
+  document.getElementById('totaal').textContent = euro(totaal);
+  document.getElementById('aantal').textContent = stuks + ' stukken uit ' + WINKELS.length + ' winkels';
+})();
+</script>
+<script src="../menu/menu.js" defer></script>
+</body>
+</html>
