@@ -30,7 +30,7 @@
   .kaart .titel small{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
   .kaart .titel b{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(28px,2.8vw,46px);line-height:.95;margin-top:.25em}
   .kaart .titel b em{color:var(--roze)}
-  .kaart .hint{position:absolute;left:18px;bottom:14px;font-size:11px;letter-spacing:.06em;pointer-events:none}
+  .kaart .hint{position:absolute;left:18px;bottom:14px;font-size:11px;letter-spacing:.06em;pointer-events:none;background:var(--grijs);padding:4px 8px;border:1px solid var(--zwart)}
 
   /* gebouwen: lijntekening */
   .dak{fill:var(--grijs);stroke:var(--zwart);stroke-width:.6;stroke-linejoin:round}
@@ -100,8 +100,7 @@
 <div class="affiche">
   <main class="kaart" id="kaart">
     <svg id="svg" role="img" aria-label="Driedimensionale kaart van het centrum van Gent met de winkels waar mijn kleren vandaan komen"></svg>
-    <div class="titel"><small>Editie 06 · de plaats · Gent</small><b>Waar mijn<br><em>kast</em> woont</b></div>
-    <div class="hint">sleep om de stad te draaien</div>
+    <div class="hint">sleep om de stad te draaien · scroll om te zoomen</div>
   </main>
   <section class="rechts">
     <div class="samen"><small>In mijn kast</small><b id="totaal">€0</b><span id="aantal"></span></div>
@@ -215,8 +214,19 @@ var WINKELS = [
     var x = a[0] + t * dx - p[0], y = a[1] + t * dy - p[1];
     return Math.sqrt(x * x + y * y);
   }
-  var lijnen = STRATEN.map(function(s){ return { pt: s.pt.map(plan), vrij: s.dik / 2 + 7 }; });
-  lijnen.push({ pt: LEIE.map(plan), vrij: 38 });
+  /* een lijn die aan de rand van het kaartvak stopt, loopt verder de stad uit */
+  function verleng(pts){
+    pts = pts.slice();
+    function aanRand(p){ return Math.abs(p[0]) > HW - 40 || Math.abs(p[1]) > HH - 40; }
+    function door(a, b){ var dx = a[0] - b[0], dy = a[1] - b[1], l = Math.hypot(dx, dy) || 1; return [a[0] + dx / l * 900, a[1] + dy / l * 900]; }
+    if(aanRand(pts[0])) pts.unshift(door(pts[0], pts[1]));
+    if(aanRand(pts[pts.length - 1])) pts.push(door(pts[pts.length - 1], pts[pts.length - 2]));
+    return pts;
+  }
+  STRATEN.forEach(function(s){ s.plan = verleng(s.pt.map(plan)); });
+  var LEIE_PLAN = verleng(LEIE.map(plan));
+  var lijnen = STRATEN.map(function(s){ return { pt: s.plan, vrij: s.dik / 2 + 7 }; });
+  lijnen.push({ pt: LEIE_PLAN, vrij: 38 });
   var pleinen = PLEKKEN.map(function(p){ return { c: plan(p.pt), r: p.r + 8 }; });
   function vrij(p){
     for(var i = 0; i < lijnen.length; i++){
@@ -231,9 +241,9 @@ var WINKELS = [
      De straten, de Leie en de winkels staan op hun echte plek; de huizen ertussen zijn een schets. */
   var zaad = 7;
   function toeval(){ zaad = (zaad * 16807) % 2147483647; return (zaad - 1) / 2147483646; }
-  var CEL = 30, gebouwen = [];
-  for(var gx = -HW + CEL / 2; gx < HW; gx += CEL){
-    for(var gy = -HH + CEL / 2; gy < HH; gy += CEL){
+  var CEL = 30, gebouwen = [], E = Math.max(HW, HH) * 1.15;
+  for(var gx = -E; gx < E; gx += CEL){
+    for(var gy = -E; gy < E; gy += CEL){
       var c = [gx + (toeval() - .5) * 4, gy + (toeval() - .5) * 4];
       if(toeval() < .1) continue;                                    // een binnenkoer
       if(!vrij(c)) continue;
@@ -269,14 +279,16 @@ var WINKELS = [
   }
   WINKELS.forEach(function(w){
     if(!w.ver) return;
-    var h = richting([midLat, midLon], w.ver), dx = Math.sin(h), dy = -Math.cos(h), m = 70;
-    var t = Math.min(dx ? (HW - m) / Math.abs(dx) : 1e9, dy ? (HH - m) / Math.abs(dy) : 1e9);
+    var h = richting([midLat, midLon], w.ver), dx = Math.sin(h), dy = -Math.cos(h), t = 430;
     w.planXY = [dx * t, dy * t]; w.richting = [dx, dy];
     w.adres += ', ' + Math.round(afstand([midLat, midLon], w.ver) / 10) * 10 + ' km';
   });
 
   /* ---------- de schuine blik ---------- */
-  var hoek = -0.35, KANTEL = .56, gekozen = null;
+  var hoek = -0.35, KANTEL = .56, gekozen = null, zoom = 0;
+  var inStadPlan = WINKELS.filter(function(w){ return !w.ver; }).map(function(w){ return plan(w.pt); });
+  var MIDDEN = [inStadPlan.reduce(function(s, p){ return s + p[0]; }, 0) / inStadPlan.length, inStadPlan.reduce(function(s, p){ return s + p[1]; }, 0) / inStadPlan.length];
+  function standaardZoom(){ return kaart.clientWidth < 700 ? 620 : 980; }
   function proj(p, z){
     var cs = Math.cos(hoek), sn = Math.sin(hoek);
     var x = p[0] * cs - p[1] * sn, y = p[0] * sn + p[1] * cs;
@@ -290,29 +302,24 @@ var WINKELS = [
   function teken(){
     svg.innerHTML = '';
     var defs = el('defs', {});
-    /* kader: de hoeken van de kaart */
-    var hoeken = [[-HW,-HH],[HW,-HH],[HW,HH],[-HW,HH]].map(function(p){ return proj(p, 0); });
-    var minX = Math.min.apply(0, hoeken.map(function(q){ return q[0]; })), maxX = Math.max.apply(0, hoeken.map(function(q){ return q[0]; }));
-    var minY = Math.min.apply(0, hoeken.map(function(q){ return q[1]; })) - 90, maxY = Math.max.apply(0, hoeken.map(function(q){ return q[1]; }));
-    var pad0 = 30;
-    /* smal scherm: inzoomen op de winkels */
-    if(kaart.clientWidth < 700){
-      var ps = WINKELS.filter(function(w){ return !w.ver; }).map(function(w){ return proj(plan(w.pt), 0); });
-      minX = Math.min.apply(0, ps.map(function(q){ return q[0]; })) - 90; maxX = Math.max.apply(0, ps.map(function(q){ return q[0]; })) + 90;
-      minY = Math.min.apply(0, ps.map(function(q){ return q[1]; })) - 260; maxY = Math.max.apply(0, ps.map(function(q){ return q[1]; })) + 60;
-    }
-    svg.setAttribute('viewBox', (minX - pad0) + ' ' + (minY - pad0) + ' ' + (maxX - minX + pad0 * 2) + ' ' + (maxY - minY + pad0 * 2));
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    /* beeldvullend: we kijken naar een stuk stad rond de winkels, de stad loopt door buiten beeld */
+    var BW = kaart.clientWidth || 800, BH = kaart.clientHeight || 600;
+    var vw = zoom, vh = zoom * BH / BW;
+    var mid = proj(MIDDEN, 0);
+    var vx = mid[0] - vw / 2, vy = mid[1] - vh / 2 - 30;
+    svg.setAttribute('viewBox', vx + ' ' + vy + ' ' + vw + ' ' + vh);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    function inBeeld(q, m){ return q[0] > vx - m && q[0] < vx + vw + m && q[1] > vy - m && q[1] < vy + vh + m; }
 
     var grond = el('g', {});
-    el('polygon', { points: veelhoek(hoeken), fill: 'none', stroke: '#000', 'stroke-width': 1, 'stroke-dasharray': '2 5' }, grond);
 
     /* de Leie */
-    el('path', { class: 'grond-water', d: pad(LEIE.map(plan)), 'stroke-width': 50 }, grond);
+    el('path', { class: 'grond-water', d: pad(LEIE_PLAN), 'stroke-width': 50 }, grond);
     /* straten: alleen een naam op de grond, de straat zelf is de leegte tussen de huizen */
     STRATEN.forEach(function(s, i){
       if(s.pt.length < 3 && s.naam.length > 8) return;
       var pts = s.pt.map(plan), a = proj(pts[0]), z = proj(pts[pts.length - 1]);
+      el('path', { d: pad(s.plan), fill: 'none', stroke: '#000', 'stroke-width': .5, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round' }, grond);
       if(z[0] < a[0]) pts = pts.slice().reverse();
       el('path', { id: 'sp' + i, d: pad(pts), fill: 'none' }, defs);
       var t = el('text', { class: 'snaam', 'font-size': 9, dy: 3 }, grond);
@@ -345,7 +352,9 @@ var WINKELS = [
     lijstG.forEach(function(o){
       var g = o.g, hx = g.w / 2, hy = g.d / 2;
       var voet = [[g.c[0] - hx, g.c[1] - hy], [g.c[0] + hx, g.c[1] - hy], [g.c[0] + hx, g.c[1] + hy], [g.c[0] - hx, g.c[1] + hy]];
-      var onder = voet.map(function(p){ return proj(p, 0); }), boven = voet.map(function(p){ return proj(p, g.h); });
+      var onder = voet.map(function(p){ return proj(p, 0); });
+      if(!inBeeld(onder[0], 80)) return;
+      var boven = voet.map(function(p){ return proj(p, g.h); });
       var grp = el('g', { class: g.winkel ? 'winkelpand' + (g.winkel === gekozen ? ' aan' : '') : '' }, stad);
       for(var i = 0; i < 4; i++){
         var j = (i + 1) % 4;
@@ -368,10 +377,11 @@ var WINKELS = [
     var lq = proj(plan([51.0475,3.7189]), 0);
     var lt = el('text', { class: 'plek', x: lq[0], y: lq[1], 'text-anchor': 'middle', 'font-size': 24 }, namen); lt.textContent = 'Leie';
 
-    /* noordpijl draait mee */
-    var np = proj([HW - 60, -HH + 60], 0), nq = proj([HW - 60, -HH + 20], 0);
-    el('path', { d: 'M' + np[0] + ' ' + np[1] + ' L' + nq[0] + ' ' + nq[1], stroke: '#000', 'stroke-width': 1.5 }, namen);
-    var nt = el('text', { class: 'plek', x: nq[0] + (nq[0] - np[0]) * .6, y: nq[1] + (nq[1] - np[1]) * .6 + 6, 'text-anchor': 'middle', 'font-size': 22 }, namen); nt.textContent = 'N';
+    /* noordpijl rechtsboven in beeld, draait mee */
+    var nx = vx + vw - 50, ny = vy + 70, nd = proj([0, -40], 0), n0 = proj([0, 0], 0);
+    var ux = nd[0] - n0[0], uy = nd[1] - n0[1], ul = Math.hypot(ux, uy) || 1; ux /= ul; uy /= ul;
+    el('path', { d: 'M' + (nx - ux * 22) + ' ' + (ny - uy * 22) + ' L' + (nx + ux * 22) + ' ' + (ny + uy * 22), stroke: '#000', 'stroke-width': 1.5 }, namen);
+    var nt = el('text', { class: 'plek', x: nx + ux * 38, y: ny + uy * 38 + 7, 'text-anchor': 'middle', 'font-size': 22 }, namen); nt.textContent = 'N';
 
     /* pins */
     var pinsG = el('g', {});
@@ -439,7 +449,14 @@ var WINKELS = [
   });
   addEventListener('pointerup', function(){ if(sleep){ kaart.classList.remove('sleept'); sleep = null; } });
 
+  /* zoomen met scrollen */
+  kaart.addEventListener('wheel', function(e){
+    e.preventDefault();
+    zoom = Math.max(320, Math.min(1700, zoom * (e.deltaY > 0 ? 1.08 : 1 / 1.08)));
+    if(!wacht){ wacht = true; requestAnimationFrame(function(){ wacht = false; teken(); }); }
+  }, { passive: false });
   addEventListener('resize', function(){ teken(); });
+  zoom = standaardZoom();
   teken();
 })();
 </script>
