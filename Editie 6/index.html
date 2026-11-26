@@ -551,25 +551,29 @@ var WINKELS = [
   .lucht{left:-6000px;top:-3000px;width:12000px;height:2200px;background:var(--grijs)}
 
   /* een gevel: zijkant van de straat */
-  .gevel{left:0;top:0;background:var(--grijs);border:2px solid var(--zwart)}
+  /* huizen: echte ramen, rijen boven elkaar */
+  .gevel{left:0;top:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='240'%3E%3Crect x='45' y='44' width='90' height='150' fill='%23cfcfcf' stroke='%23000' stroke-width='4'/%3E%3Cline x1='90' y1='44' x2='90' y2='194' stroke='%23000' stroke-width='3'/%3E%3Cline x1='38' y1='202' x2='142' y2='202' stroke='%23000' stroke-width='6'/%3E%3C/svg%3E") 0 0/180px 240px repeat,var(--grijs);border:2px solid var(--zwart)}
+  .gevel .ramen{display:none}
+  .gevel.groen{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='240'%3E%3Crect x='45' y='44' width='90' height='150' fill='%23cfcfcf' stroke='%23000' stroke-width='4'/%3E%3Cline x1='90' y1='44' x2='90' y2='194' stroke='%23000' stroke-width='3'/%3E%3Cline x1='38' y1='202' x2='142' y2='202' stroke='%23000' stroke-width='6'/%3E%3C/svg%3E") 0 0/180px 240px repeat,var(--groen)}
+  /* de rechterkant van de straat iets donkerder, zo voel je de diepte */
+  .rechts{filter:brightness(.93)}
   .gevel .ramen{position:absolute;inset:24px 22px 34%;background:
       repeating-linear-gradient(90deg,transparent 0 22px,var(--zwart) 22px 24px,transparent 24px 70px),
       repeating-linear-gradient(0deg,transparent 0 60px,rgba(0,0,0,.0) 60px 62px);
       -webkit-mask:repeating-linear-gradient(0deg,#000 0 70px,transparent 70px 110px);mask:repeating-linear-gradient(0deg,#000 0 70px,transparent 70px 110px);opacity:.6}
   .gevel .deur{position:absolute;bottom:0;width:70px;height:150px;border:2px solid var(--zwart);border-bottom:0;background:var(--grijs)}
-  .gevel.groen{background:var(--groen)}
 
   /* een winkel: naam in Bodoni, luifel, een etalage die overloopt */
   /* ---------- een echte winkelpui: rustig, één idee per etalage ---------- */
   .winkelgevel{left:0;top:0;background:var(--grijs);border:2px solid var(--zwart);cursor:pointer;overflow:hidden}
-  .winkelgevel .boven{position:absolute;left:0;right:0;top:0;height:44%;border-bottom:2px solid var(--zwart);
+  .winkelgevel .boven{position:absolute;left:0;right:0;top:0;bottom:722px;border-bottom:2px solid var(--zwart);
       background:repeating-linear-gradient(90deg,transparent 0 60px,var(--zwart) 60px 62px,transparent 62px 64px,var(--zwart) 64px 66px,transparent 66px 150px);
       -webkit-mask:repeating-linear-gradient(0deg,transparent 0 40px,#000 40px 190px,transparent 190px 230px);mask:repeating-linear-gradient(0deg,transparent 0 40px,#000 40px 190px,transparent 190px 230px);opacity:.35}
-  .winkelgevel .bord{position:absolute;left:0;right:0;top:44%;height:84px;border-bottom:2px solid var(--zwart);background:var(--grijs);
+  .winkelgevel .bord{position:absolute;left:0;right:0;bottom:638px;height:84px;border-bottom:2px solid var(--zwart);background:var(--grijs);
       display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:54px;letter-spacing:.12em;white-space:nowrap;text-transform:uppercase}
   .winkelgevel.tweedehands .bord{background:var(--groen)}
-  .winkelgevel .raam{position:absolute;left:40px;right:170px;top:calc(44% + 112px);bottom:64px;border:12px solid var(--zwart);overflow:hidden}
-  .winkelgevel .ingang{position:absolute;right:40px;width:100px;top:calc(44% + 112px);bottom:64px;border:8px solid var(--zwart);
+  .winkelgevel .raam{position:absolute;left:40px;right:170px;height:546px;bottom:64px;border:12px solid var(--zwart);overflow:hidden}
+  .winkelgevel .ingang{position:absolute;right:40px;width:100px;height:546px;bottom:64px;border:8px solid var(--zwart);
       background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.25));font-family:var(--sans);font-size:13px;letter-spacing:.22em;
       display:flex;align-items:flex-end;justify-content:center;padding-bottom:20px;text-transform:uppercase}
   .winkelgevel .plint{position:absolute;left:0;right:0;bottom:0;height:64px;background:var(--zwart)}
@@ -649,7 +653,7 @@ var WINKELS = [
 
   var scherm = document.getElementById('wandel'), wereld = document.getElementById('wereld');
   var M = 60;                       // 1 meter = 60 pixels
-  var BREED = 440;                 // de straat is ongeveer 7 meter breed
+  var BREED = 620;                 // de straat is ongeveer 10 meter breed
   var OOG = 95;                    // ooghoogte boven de vloer (px)
   var BEELD = '../Editie%202/g/';
   var ALLES = []; for(var n = 0; n <= 32; n++) ALLES.push(n);
@@ -687,6 +691,7 @@ var WINKELS = [
        Zo lees je de namen gewoon van links naar rechts. */
     /* schaal: de gevel wordt op ware grootte gezet (een etalage is een paar meter hoog, niet tien) */
     el.style.width = lengte * M / schaal + 'px'; el.style.height = hoogte + 'px'; el.style.transformOrigin = '0 0';
+    el.classList.add(kant > 0 ? 'rechts' : 'links');
     var y = OOG - hoogte * schaal, sc = schaal === 1 ? '' : ' scale(' + schaal + ')';
     if(kant > 0) el.style.transform = 'translate3d(' + (BREED / 2) + 'px,' + y + 'px,' + (-(z0 + lengte) * M) + 'px) rotateY(-90deg)' + sc;
     else el.style.transform = 'translate3d(' + (-BREED / 2) + 'px,' + y + 'px,' + (-z0 * M) + 'px) rotateY(90deg)' + sc;
@@ -696,7 +701,7 @@ var WINKELS = [
   function huis(kant, z0, lengte){
     var g = document.createElement('div'); g.className = 'gevel' + (toeval() < .18 ? ' groen' : '');
     g.innerHTML = '<div class="ramen"></div><div class="deur" style="left:' + (20 + toeval() * 60) + '%"></div>';
-    zet(g, kant, z0, lengte, 1050 + toeval() * 420, .5);
+    zet(g, kant, z0, lengte, 1800 + toeval() * 160, .5);
   }
 
   /* vijf soorten etalages, zoals in echte winkels */
@@ -755,7 +760,7 @@ var WINKELS = [
     g.innerHTML = '<div class="boven"></div><div class="bord">' + w.naam + '</div><div class="raam"></div><div class="ingang">open</div><div class="plint"></div>';
     g.querySelector('.raam').appendChild(etalage(w, lengte * M / .5 - 210));
     g.addEventListener('click', function(e){ if(gesleept) return; toonGekocht(w); });
-    zet(g, kant, z0, lengte, 1250, .5);
+    zet(g, kant, z0, lengte, 1800 + toeval() * 160, .5);
   }
   function winkel(w){ winkelGevel(w, w.kant, w.afstand - 9, 18); }
 
@@ -779,9 +784,9 @@ var WINKELS = [
     while(z < LENGTE){
       var vrij = bezet.filter(function(b){ return b[1] > z; }).sort(function(a, b){ return a[0] - b[0]; })[0];
       var tot = vrij ? vrij[0] : LENGTE;
-      while(z < tot - 3){
-        var l = Math.min(tot - z, 8 + toeval() * 7);
-        if(WINKELSTRAAT[straatOp(z)] && l > 9 && toeval() < .75){
+      while(z < tot - .01){
+        var l = Math.min(tot - z, 8 + toeval() * 7); if(tot - z - l < 4) l = tot - z;
+        if(l >= 7 && toeval() < (WINKELSTRAAT[straatOp(z)] ? .92 : .72)){
           andereNr++;
           winkelGevel({ naam: ANDERE[andereNr % ANDERE.length], nr: andereNr + 3, kleren: [], andere: true }, kant, z, l);
         } else huis(kant, z, l);
@@ -825,7 +830,7 @@ var WINKELS = [
     /* alleen wat dichtbij is, tonen */
     for(var i = 0; i < dingen.length; i++){
       var t = dingen[i], a0 = (t.z0 != null ? t.z0 : t.z) - pos, a1 = (t.z1 != null ? t.z1 : t.z) - pos;
-      t.el.style.display = (a1 > -.5 && a0 < 95) ? '' : 'none';
+      t.el.style.display = (a1 > -.5 && a0 < 170) ? '' : 'none';
     }
     mini();
     if(Math.abs(doel - pos) > .02) requestAnimationFrame(teken); else bezig = false;
