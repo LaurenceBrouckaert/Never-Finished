@@ -539,9 +539,11 @@ var WINKELS = [
   .wandelknop:hover{background:var(--zwart);color:var(--grijs)}
 
   .wandel{position:fixed;inset:0;z-index:1000;background:var(--grijs);overflow:hidden;display:none;
-          perspective:640px;perspective-origin:50% 42%;touch-action:none;user-select:none;-webkit-user-select:none}
+          touch-action:none;user-select:none;-webkit-user-select:none}
   .wandel.open{display:block}
-  .wereld{position:absolute;left:50%;top:42%;width:0;height:0;transform-style:preserve-3d}
+  /* de 3D-straat in een eigen laag, zodat de knoppen en de minikaart er altijd boven liggen */
+  .podium{position:absolute;inset:0;overflow:hidden;isolation:isolate;z-index:0;perspective:640px;perspective-origin:50% 64%}
+  .wereld{position:absolute;left:50%;top:64%;z-index:0;width:0;height:0;transform-style:preserve-3d}
   .wereld > *{position:absolute;transform-style:preserve-3d;backface-visibility:hidden}
 
   /* de straat */
@@ -635,7 +637,7 @@ var WINKELS = [
 </style>
 
 <section class="wandel" id="wandel" aria-label="Wandelen door Gent">
-  <div class="wereld" id="wereld"></div>
+  <div class="podium"><div class="wereld" id="wereld"></div></div>
   <svg class="hud mini" id="wMini" aria-hidden="true"></svg>
   <button class="terug" id="wTerug">kaart</button>
   <div class="gekocht" id="wGekocht"></div>
@@ -647,8 +649,8 @@ var WINKELS = [
 
   var scherm = document.getElementById('wandel'), wereld = document.getElementById('wereld');
   var M = 60;                       // 1 meter = 60 pixels
-  var BREED = 1000;                 // de straat is ongeveer 16 meter breed
-  var OOG = 150;                    // ooghoogte boven de vloer (px)
+  var BREED = 440;                 // de straat is ongeveer 7 meter breed
+  var OOG = 95;                    // ooghoogte boven de vloer (px)
   var BEELD = '../Editie%202/g/';
   var ALLES = []; for(var n = 0; n <= 32; n++) ALLES.push(n);
 
@@ -679,20 +681,22 @@ var WINKELS = [
   var lucht = document.createElement('div'); lucht.className = 'lucht'; wereld.appendChild(lucht);
 
   /* gevel aan een kant: kant 1 = rechts, -1 = links; z0 = begin (m), lengte (m) */
-  function zet(el, kant, z0, lengte, hoogte){
+  function zet(el, kant, z0, lengte, hoogte, schaal){
+    schaal = schaal || 1;
     /* rechts: de gevel kijkt naar links en loopt van ver naar dichtbij; links: kijkt naar rechts en loopt van dichtbij naar ver.
        Zo lees je de namen gewoon van links naar rechts. */
-    el.style.width = lengte * M + 'px'; el.style.height = hoogte + 'px'; el.style.transformOrigin = '0 0';
-    var y = OOG - hoogte;
-    if(kant > 0) el.style.transform = 'translate3d(' + (BREED / 2) + 'px,' + y + 'px,' + (-(z0 + lengte) * M) + 'px) rotateY(-90deg)';
-    else el.style.transform = 'translate3d(' + (-BREED / 2) + 'px,' + y + 'px,' + (-z0 * M) + 'px) rotateY(90deg)';
-    return plaats(el, z0 + lengte / 2);
+    /* schaal: de gevel wordt op ware grootte gezet (een etalage is een paar meter hoog, niet tien) */
+    el.style.width = lengte * M / schaal + 'px'; el.style.height = hoogte + 'px'; el.style.transformOrigin = '0 0';
+    var y = OOG - hoogte * schaal, sc = schaal === 1 ? '' : ' scale(' + schaal + ')';
+    if(kant > 0) el.style.transform = 'translate3d(' + (BREED / 2) + 'px,' + y + 'px,' + (-(z0 + lengte) * M) + 'px) rotateY(-90deg)' + sc;
+    else el.style.transform = 'translate3d(' + (-BREED / 2) + 'px,' + y + 'px,' + (-z0 * M) + 'px) rotateY(90deg)' + sc;
+    var t = plaats(el, z0 + lengte / 2); dingen[dingen.length - 1].z0 = z0; dingen[dingen.length - 1].z1 = z0 + lengte; return t;
   }
 
   function huis(kant, z0, lengte){
     var g = document.createElement('div'); g.className = 'gevel' + (toeval() < .18 ? ' groen' : '');
     g.innerHTML = '<div class="ramen"></div><div class="deur" style="left:' + (20 + toeval() * 60) + '%"></div>';
-    zet(g, kant, z0, lengte, 720 + toeval() * 520);
+    zet(g, kant, z0, lengte, 1050 + toeval() * 420, .5);
   }
 
   /* vijf soorten etalages, zoals in echte winkels */
@@ -701,7 +705,7 @@ var WINKELS = [
     var b = document.createElement('div'); b.className = 'binnen';
     var mijn = w.kleren.map(function(k){ return k.n; });
     function stuk(i){ return i < mijn.length ? mijn[i] : ALLES[Math.floor(toeval() * ALLES.length)]; }
-    function label(i, x, y){ return i < mijn.length ? '<span class="mijn" style="left:' + x + ';top:' + y + '">in mijn kast</span>' : ''; }
+    function label(){ return ''; }
     var stijl = w.tweedehands ? 'hoezen' : STIJLEN[w.nr % STIJLEN.length], html = '';
     var spots = '<div class="spots">'; for(var s = 0; s < 5; s++) spots += '<i style="left:' + (8 + s * 20) + '%"></i>'; spots += '</div>';
     var plek = w.adres || 'Gent';
@@ -749,9 +753,9 @@ var WINKELS = [
   function winkelGevel(w, kant, z0, lengte){
     var g = document.createElement('div'); g.className = 'winkelgevel' + (w.tweedehands ? ' tweedehands' : '');
     g.innerHTML = '<div class="boven"></div><div class="bord">' + w.naam + '</div><div class="raam"></div><div class="ingang">open</div><div class="plint"></div>';
-    g.querySelector('.raam').appendChild(etalage(w, lengte * M - 210));
+    g.querySelector('.raam').appendChild(etalage(w, lengte * M / .5 - 210));
     g.addEventListener('click', function(e){ if(gesleept) return; toonGekocht(w); });
-    zet(g, kant, z0, lengte, 1250);
+    zet(g, kant, z0, lengte, 1250, .5);
   }
   function winkel(w){ winkelGevel(w, w.kant, w.afstand - 9, 18); }
 
@@ -764,7 +768,7 @@ var WINKELS = [
   function straatbord(naam, z, kant, sub){
     var b = document.createElement('div'); b.className = 'straatbord';
     b.innerHTML = naam + (sub ? '<small>' + sub + '</small>' : '');
-    b.style.transform = 'translate3d(' + (kant * (BREED / 2 - 40) - (kant > 0 ? 360 : 0)) + 'px,' + (OOG - 420) + 'px,' + (-z * M) + 'px)';
+    b.style.transform = 'translate3d(' + (kant * (BREED / 2 - 30) - (kant > 0 ? 250 : 0)) + 'px,' + (OOG - 250) + 'px,' + (-z * M) + 'px) scale(.7)';
     plaats(b, z);
   }
 
@@ -820,8 +824,8 @@ var WINKELS = [
     lucht.style.transform = 'translate3d(0,0,' + (-(pos * M) - 5200) + 'px)';
     /* alleen wat dichtbij is, tonen */
     for(var i = 0; i < dingen.length; i++){
-      var t = dingen[i], a = t.z - pos;
-      t.el.style.display = (a > -25 && a < 95) ? '' : 'none';
+      var t = dingen[i], a0 = (t.z0 != null ? t.z0 : t.z) - pos, a1 = (t.z1 != null ? t.z1 : t.z) - pos;
+      t.el.style.display = (a1 > -.5 && a0 < 95) ? '' : 'none';
     }
     mini();
     if(Math.abs(doel - pos) > .02) requestAnimationFrame(teken); else bezig = false;
