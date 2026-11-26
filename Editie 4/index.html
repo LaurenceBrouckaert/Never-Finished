@@ -2,7 +2,12 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!-- browserbalk in dezelfde kleur, en volledig scherm als je de pagina op je beginscherm zet -->
+<meta name="theme-color" content="#e2e2e2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Koopverbod · Editie 4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +20,9 @@
     --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;background:var(--bg);color:#000}
+  html,body{height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:#000;overscroll-behavior:none}
+  :fullscreen,::backdrop{background:var(--bg)}
+  body{cursor:default;-webkit-touch-callout:none}
   body{font-family:var(--serif);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;touch-action:none}
 
   .wacht{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
@@ -50,7 +57,25 @@ function teVroeg(){
   wacht.classList.remove('te-vroeg'); void wacht.offsetWidth; wacht.classList.add('te-vroeg');
   start = performance.now();
 }
-['mousemove','mousedown','keydown','wheel','touchstart'].forEach(function(t){ addEventListener(t, teVroeg, { passive: true }); });
+/* het hele scherm: bij de eerste aanraking gaat de pagina volledig scherm (dat mag een browser pas na een klik/toets) */
+var html = document.documentElement, eerste = true;
+function volScherm(){
+  if(document.fullscreenElement || document.webkitFullscreenElement) return;
+  var f = html.requestFullscreen || html.webkitRequestFullscreen;
+  if(f){ try{ var r = f.call(html, { navigationUI: 'hide' }); if(r && r.catch) r.catch(function(){}); }catch(e){} }
+}
+function opKruisje(e){ return e.target && e.target.closest && e.target.closest('#zakmenu'); }
+function handeling(e){
+  if(opKruisje(e)) return;                       // het kruisje brengt je naar home
+  if(e.cancelable && e.type !== 'mousemove') e.preventDefault();   // verder doet niets iets
+  if(eerste && e.type !== 'mousemove'){ eerste = false; volScherm(); start = performance.now(); return; }
+  teVroeg();
+}
+['mousemove','mousedown','keydown','wheel','touchstart'].forEach(function(t){ addEventListener(t, handeling, { passive: false }); });
+/* geen rechtermuisknop, geen selecteren, niet slepen */
+['contextmenu','selectstart','dragstart','gesturestart'].forEach(function(t){ addEventListener(t, function(e){ if(!opKruisje(e)) e.preventDefault(); }); });
+/* volledig scherm verlaten (Esc)? bij de volgende aanraking gaat hij terug */
+document.addEventListener('fullscreenchange', function(){ if(!document.fullscreenElement) eerste = true; });
 
 function tijd(sec){
   var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;

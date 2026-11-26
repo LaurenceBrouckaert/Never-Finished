@@ -80,9 +80,7 @@ img{user-select:none;-webkit-user-drag:none;-webkit-user-select:none}
   <button class="btn" id="toRack" aria-label="kast">
     <svg viewBox="0 0 24 24"><path d="M12 7.5a2 2 0 1 1 2-2c0 1.2-2 1.6-2 3v1.2L3 15.5c-.8.5-.5 1.7.5 1.7h17c1 0 1.3-1.2.5-1.7L12 9.7"/></svg>
   </button>
-  <button class="btn" id="undress" aria-label="uit">
-    <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>
-  </button>
+  <button class="btn" id="undress" aria-label="wis alle kleren">wis</button>
   <div id="tray"></div>
 </section>
 
@@ -381,7 +379,9 @@ function bindGestures(el,i){
   el.addEventListener('wheel',e=>{e.preventDefault();const p=pos[i];p.w=Math.max(40,Math.min(400,p.w*(e.deltaY<0?1.04:1/1.04)));place(i);},{passive:false});
 }
 </script>
-<style>/* zak-menu staat rechtsboven */ #undress{right:calc(max(16px,env(safe-area-inset-right)) + 90px + 12px)!important}</style>
+<style>/* het kruisje naar home staat rechtsboven, de wis-knop ernaast */
+#undress{right:calc(max(27px,env(safe-area-inset-right)) + 37px + 12px)!important;top:max(20px,calc(env(safe-area-inset-top) - 6px))!important;
+  width:auto;padding:0 20px;border-radius:24px;font-family:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;font-size:19px;line-height:1;letter-spacing:.02em}</style>
 <script src="../menu/menu.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Koopverbod · Editie 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Bodoni Moda is enkel een reserve voor toestellen zonder Bodoni 72 (Windows/Android) -->
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap" rel="stylesheet">
+<!-- De vorige versie (met de groene krasbollen) staat in index-oud.html -->
+<style>
+  :root{
+    --bg:#e2e2e2;
+    --serif:"Bodoni 72","Bodoni 72 Book","Bodoni Moda","Didot",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:#000}
+  body{font-family:var(--serif);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;touch-action:none}
+
+  .wacht{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .opdracht{position:absolute;top:10vh;left:0;right:0;text-align:center;font-size:clamp(18px,2.2vw,36px)}
+  .getal{position:relative;font-size:min(15vw,14.5vh);line-height:.9;font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.01em}
+  .status{position:absolute;bottom:10vh;left:0;right:0;text-align:center;font-size:clamp(14px,1.2vw,19px);
+          font-style:italic;min-height:1.4em;opacity:.65}
+  .ring{position:absolute;width:min(64vh,92vw);aspect-ratio:1;pointer-events:none}
+  .ring circle{fill:none;stroke:#000;stroke-width:.4}
+  .te-vroeg .getal{animation:schud .35s ease}
+  @keyframes schud{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+</style>
+</head>
+<body>
+
+<section class="wacht" id="wacht" aria-live="polite">
+  <svg class="ring" viewBox="0 0 102 102" aria-hidden="true"><circle cx="51" cy="51" r="50"/></svg>
+  <p class="opdracht">Doe 4 uur helemaal niets.</p>
+  <div class="getal" id="getal">4:00:00</div>
+  <p class="status" id="status"></p>
+</section>
+
+<script>
+var DUUR = 4 * 60 * 60;   // 4 uur, in seconden
+var wacht = document.getElementById('wacht'), getal = document.getElementById('getal'), status = document.getElementById('status');
+var start = performance.now(), klaar = false, pogingen = 0;
+var PLAAG = ['te vroeg.', 'zie je, moeilijk he.', 'net als op "koop nu" klikken.', 'nog eens.', 'geduld is ook sparen.'];
+
+function teVroeg(){
+  if(klaar || performance.now() - start < 250) return;
+  status.textContent = PLAAG[pogingen++ % PLAAG.length];
+  wacht.classList.remove('te-vroeg'); void wacht.offsetWidth; wacht.classList.add('te-vroeg');
+  start = performance.now();
+}
+['mousemove','mousedown','keydown','wheel','touchstart'].forEach(function(t){ addEventListener(t, teVroeg, { passive: true }); });
+
+function tijd(sec){
+  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+(function lus(t){
+  var rest = Math.max(0, DUUR - (t - start) / 1000);
+  getal.textContent = tijd(Math.ceil(rest));
+  if(rest === 0){ klaar = true; status.textContent = 'gelukt.'; return; }
+  requestAnimationFrame(lus);
+})(start);
+</script>
+<script src="../menu/menu.js" defer></script>
+</body>
+</html>
