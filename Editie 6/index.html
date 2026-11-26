@@ -20,7 +20,9 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--zwart);color:var(--zwart);font-family:var(--sans);-webkit-font-smoothing:antialiased}
 
-  .affiche{display:grid;grid-template-columns:1fr minmax(280px,24vw);height:100svh;padding:calc(var(--rand) + 34px) var(--rand) var(--rand)}
+  .affiche{display:grid;grid-template-columns:1fr minmax(280px,24vw);height:100svh;padding:0}
+  /* kruisje rechtsboven staat op de groene legende: daar wat ruimte voor laten */
+  .rechts .samen{padding-top:76px}
 
   /* ---------- DE KAART: Gent van bovenaf, schuin bekeken ---------- */
   .kaart{position:relative;background:var(--grijs);min-height:0;overflow:hidden;cursor:grab;touch-action:pan-y}
