@@ -139,9 +139,25 @@
   .kaart .tab{position:absolute;left:12%;right:12%;height:48%;background:var(--grijs);border-radius:.8em;overflow:hidden;box-shadow:0 .3em 1.2em rgba(0,0,0,.35)}
   .kaart .tab header{height:1.9em;background:var(--zwart);color:var(--grijs);font-size:.85em;display:flex;align-items:center;padding:0 .8em;gap:.5em}
   .kaart .tab img{height:calc(100% - 1.9em);margin:0 auto}
+  .kaart .tab img.dek{height:calc(100% - 1.9em)}
 
   /* betaalknop */
   .kaart .betaal{width:100%;background:var(--roze);color:var(--zwart);border-radius:999px;padding:.9em 1em;font-weight:700;font-size:1.2em;text-align:center}
+
+
+  /* echte advertentiebeelden */
+  .kaart .schaduw{position:absolute;left:0;right:0;top:0;height:22%;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,0));pointer-events:none}
+  .kaart .dek{object-fit:cover;width:100%;height:100%}
+  .kaart video.stuk{display:block}
+  .kaart .foto{border-radius:.6em;overflow:hidden;background:var(--grijs)}
+  .kaart .foto img{display:block;width:100%;height:100%;object-fit:cover}
+  .kaart .foto-rooster .foto{aspect-ratio:1}
+  .kaart .groot{position:absolute;left:1.2em;right:1.2em;top:4.6em;display:flex;flex-direction:column;gap:.6em}
+  .kaart .groot > .foto{aspect-ratio:1}
+  .kaart .groot .duo{display:grid;grid-template-columns:1fr 1fr;gap:.6em}
+  .kaart .groot .duo .foto{aspect-ratio:1}
+  /* de winkelmand-screenshot: grijswaarden en vermenigvuldigd, zodat hij in het groen opgaat */
+  .kaart img.mandbon{filter:grayscale(1) contrast(1.05);mix-blend-mode:multiply;border-radius:.6em}
 
   @media (max-width:760px){
     .kop{padding-left:5vw;gap:2px 3vw;flex-wrap:wrap}
@@ -171,7 +187,8 @@
       data-prijs = wat er in je mandje kwam (laat weg als er niets bij kwam)
       .kaart.advert = gesponsord (Shoppen), .kaart.verhaal = gewone story (Chatbericht sturen…)
       .kaart.licht  = lichte achtergrond, dan worden balk en naam zwart
-      Beelden komen uit Editie 2 (../Editie%202/g/NUMMER.webp)
+      Beelden: echte advertenties uit mijn Instagram-stories (27/11), uitgeknipt in g/.
+      De kaders rond de beelden staan in de vier Koopverbod-kleuren. Prijzen zijn geschat.
     -->
 
     <!-- 01:12 · gewone story -->
@@ -194,142 +211,173 @@
       <p>Nog één keer de app open. Gewoon kijken.</p>
     </article>
 
-    <!-- 07:15 · advertentie laarzen -->
-    <article class="moment" style="--uur:7.25" data-prijs="89">
-      <span class="tijd">07:15</span>
-      <div class="kaart advert">
-        <div class="vlak" style="background:var(--zwart)">
-          <div style="position:absolute;left:1em;right:1em;top:4.4em;background:var(--grijs);border-radius:.6em;padding:1.1em 1em 1em">
-            <div class="bodoni" style="font-size:2em;line-height:1.02">Laarzen die je gisteren bekeek.</div>
-            <div style="font-size:.85em;margin-top:.4em;opacity:.7">Nog altijd in jouw maat</div>
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:1em">
-              <b style="font-size:1.3em">€89</b><span style="color:var(--roze);font-size:.85em">−30% enkel vandaag</span></div>
-            <div style="margin-top:.8em;height:7em;border-radius:.5em;background:var(--groen);display:grid;place-items:center">
-              <span class="bodoni" style="font-size:3.2em;font-style:italic">laars.</span></div>
-          </div>
-          <div style="position:absolute;left:1em;right:1em;top:23.2em;display:grid;grid-template-columns:1fr 1fr;gap:.6em">
-            <div style="background:var(--grijs);border-radius:.6em;padding:.7em;font-size:.8em"><b>Enkellaars</b><br><span style="opacity:.7">€74</span></div>
-            <div style="background:var(--grijs);border-radius:.6em;padding:.7em;font-size:.8em"><b>Kniehoog</b><br><span style="opacity:.7">€119</span></div>
-          </div>
-          <span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span>
-        </div>
-        <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--roze)">L</span><span class="naam">laarzenatelier<span class="vink"></span></span>
+    <!-- 07:25 · advertentie asos, jas -->
+    <article class="moment" style="--uur:7.42" data-prijs="59.99">
+      <span class="tijd">07:25</span>
+      <div class="kaart advert licht">
+        <div class="vlak" style="background:var(--groen)"><div class="groot"><div class="foto"><img src="g/asos-jas-1.webp" alt=""></div><div class="duo"><div class="foto"><img src="g/asos-jas-2.webp" alt=""></div><div class="foto"><img src="g/asos-jas-3.webp" alt=""></div></div></div><span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span></div>
+        <div class="balk"><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--zwart);color:var(--grijs)">a</span><span class="naam">asos<span class="vink"></span></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
         <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Wekker. Het eerste wat ik zie: een advertentie voor laarzen.</p>
-      <span class="prijs">+ €89 laarzen</span>
+      <p>Wekker. Het eerste wat ik zie: een jas.</p>
+      <span class="prijs">+ €59,99 jas</span>
     </article>
 
-    <!-- 08:36 · advertentie die je wegklikt -->
+    <!-- 08:36 · videoadvertentie NA-KD die je wegklikt -->
     <article class="moment" style="--uur:8.6">
       <span class="tijd">08:36</span>
-      <div class="kaart advert licht">
-        <div class="vlak" style="background:var(--groen)">
-          <img class="stuk vol" src="../Editie%202/g/9.webp" alt="" style="padding:5em 1.5em 4em;opacity:.9">
-          <div class="midden" style="color:var(--zwart)">
-            <div class="bodoni" style="font-size:2.5em;line-height:1"><span class="kader" style="background:var(--grijs)">ALLEEN</span><br><span class="kader" style="background:var(--grijs)">VANDAAG</span></div>
-            <div class="bodoni" style="font-size:1.6em;margin-top:.5em"><span class="kader" style="background:var(--grijs)">−30% OP ALLES</span></div>
-          </div>
-        </div>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--zwart)"><video class="stuk vol dek" src="g/nakd.mp4" poster="g/nakd-poster.webp" autoplay muted loop playsinline></video><div class="schaduw"></div></div>
         <div class="balk"><i></i><i></i><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--groen)">d</span><span class="naam">dagdeal.store <span class="wanneer">1 van 3</span></span>
+        <div class="wie"><span class="av" style="background:var(--grijs)">N</span><span class="naam">nakdfashion<span class="vink"></span> <span class="wanneer">1 van 3</span></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
-        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp">Gesponsord</span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Op de tram. <em>"Alleen vandaag: −30%."</em> Ik klik het weg.</p>
+      <p>Op de tram. <em>"Business as Unusual."</em> Ik klik het weg.</p>
     </article>
 
-    <!-- 12:30 · advertentie jas (Uniqlo-stijl) -->
-    <article class="moment" style="--uur:12.5" data-prijs="139">
+    <!-- 09:42 · Black Friday-ringen cainte -->
+    <article class="moment" style="--uur:9.7">
+      <span class="tijd">09:42</span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--zwart)"><img class="stuk vol dek" src="g/cainte.webp" alt=""><div class="schaduw"></div></div>
+        <div class="balk"><i class="af"></i><i class="af"></i><i class="af"></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--grijs)">C</span><span class="naam">cainte<span class="vink"></span> <span class="wanneer">4 van 4</span></span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p>Eerste koffie. <em>"Up to 50% off."</em> Het is nog geen tien uur.</p>
+    </article>
+
+    <!-- 10:48 · advertentie susmies, paarse trui -->
+    <article class="moment" style="--uur:10.8">
+      <span class="tijd">10:48</span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--roze)"><div class="groot"><div class="foto"><img src="g/susmies-paars-1.webp" alt=""></div><div class="duo"><div class="foto"><img src="g/susmies-paars-2.webp" alt=""></div><div class="foto"><img src="g/susmies-paars-3.webp" alt=""></div></div></div></div>
+        <div class="balk"><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--roze)">s</span><span class="naam">susmies<span class="vink"></span></span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p>Tussen twee lessen door. Een paarse trui zonder rug.</p>
+    </article>
+
+    <!-- 12:30 · Black Friday nudeproject -->
+    <article class="moment" style="--uur:12.5" data-prijs="95">
       <span class="tijd">12:30</span>
       <div class="kaart advert">
-        <div class="vlak" style="background:#2b2b2b;background:var(--zwart)">
-          <div class="tegel" style="position:absolute;left:1.2em;right:1.2em;top:4.6em;height:47%"><img class="stuk" src="../Editie%202/g/17.webp" alt=""></div>
-          <div style="position:absolute;left:1.2em;right:1.2em;top:calc(4.6em + 47% + .6em);display:grid;grid-template-columns:1fr 1fr;gap:.6em">
-            <div class="tegel" style="aspect-ratio:1"><img class="stuk" src="../Editie%202/g/31.webp" alt=""></div>
-            <div class="tegel" style="aspect-ratio:1"><img class="stuk" src="../Editie%202/g/3.webp" alt=""></div>
-          </div>
-          <span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span>
-        </div>
-        <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--grijs)">S</span><span class="naam">suède&amp;co<span class="vink"></span></span>
+        <div class="vlak" style="background:var(--zwart)"><img class="stuk vol dek" src="g/nude.webp" alt=""><div class="schaduw"></div></div>
+        <div class="balk"><i class="af"></i><i class="af"></i><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--groen)">N</span><span class="naam">nudeproject<span class="vink"></span> <span class="wanneer">3 van 4</span></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
-        <div class="onder"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg><span>Gesponsord</span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Middagpauze, langs de etalage. Die bruine suède jas hangt er nog.</p>
-      <span class="prijs">+ €139 jas</span>
+      <p>Middagpauze. <em>"Black friday live now."</em> Die blauwe trui.</p>
+      <span class="prijs">+ €95 trui</span>
     </article>
 
-    <!-- 15:06 · retargeting-advertentie met melding -->
+    <!-- 13:42 · asos raster, weggeklikt -->
+    <article class="moment" style="--uur:13.7">
+      <span class="tijd">13:42</span>
+      <div class="kaart advert licht">
+        <div class="vlak" style="background:var(--grijs)"><div class="rooster foto-rooster"><div class="foto"><img src="g/asos-raster-1.webp" alt=""></div><div class="foto"><img src="g/asos-raster-2.webp" alt=""></div><div class="foto"><img src="g/asos-raster-3.webp" alt=""></div><div class="foto"><img src="g/asos-raster-4.webp" alt=""></div><div class="foto"><img src="g/asos-raster-5.webp" alt=""></div><div class="foto"><img src="g/asos-raster-6.webp" alt=""></div></div><span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span></div>
+        <div class="balk"><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--zwart);color:var(--grijs)">a</span><span class="naam">asos<span class="vink"></span><small>▸ Verhaal uitbreiden</small></span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p>Verhaal uitbreiden. Ik scrol verder dan ik wou.</p>
+    </article>
+
+    <!-- 15:06 · retargeting: de trui uit het mandje -->
     <article class="moment" style="--uur:15.1">
       <span class="tijd">15:06</span>
       <div class="kaart advert licht">
         <div class="vlak" style="background:var(--grijs)">
           <div class="melding"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z M3 7l9 6 9-6"/></svg></span>
-            <span><b>suède&amp;co</b>Je hebt iets laten liggen in je winkelmandje.</span></div>
+            <span><b>nudeproject</b>Je hebt iets laten liggen in je winkelmandje.</span></div>
           <div class="midden" style="padding-top:11em">
-            <div class="tegel" style="width:62%;aspect-ratio:4/5;background:var(--groen)"><img class="stuk" src="../Editie%202/g/17.webp" alt=""></div>
+            <div class="foto" style="width:62%;aspect-ratio:4/5"><img src="g/nude.webp" alt="" style="object-position:50% 30%"></div>
             <div class="bodoni" style="font-size:1.9em;line-height:1.05;margin-top:.6em">Hij wacht<br><em>nog op je.</em></div>
           </div>
           <span class="shop" style="background:var(--zwart);color:var(--grijs)"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Terug naar mandje</span>
         </div>
         <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--grijs)">S</span><span class="naam">suède&amp;co<span class="vink"></span></span>
+        <div class="wie"><span class="av" style="background:var(--groen)">N</span><span class="naam">nudeproject<span class="vink"></span></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
-        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp">Gesponsord</span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
       <p>Mail: <em>"Je hebt iets laten liggen in je winkelmandje."</em></p>
     </article>
 
-    <!-- 16:24 · haul-advertentie (raster, Motel-stijl) -->
-    <article class="moment" style="--uur:16.4" data-prijs="22.95">
+    <!-- 16:24 · haul-advertentie susmies (raster) -->
+    <article class="moment" style="--uur:16.4" data-prijs="29.95">
       <span class="tijd">16:24</span>
-      <div class="kaart advert">
-        <div class="vlak" style="background:var(--roze)">
-          <div class="rooster">
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/22.webp" alt=""></div>
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/0.webp" alt=""></div>
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/18.webp" alt=""></div>
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/24.webp" alt=""></div>
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/2.webp" alt=""></div>
-            <div class="tegel"><img class="stuk" src="../Editie%202/g/28.webp" alt=""></div>
-          </div>
-          <span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span>
-        </div>
-        <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--groen)">h</span><span class="naam">haulhuis<span class="vink"></span><small>▸ Verhaal uitbreiden</small></span>
+      <div class="kaart advert licht">
+        <div class="vlak" style="background:var(--groen)"><div class="rooster foto-rooster"><div class="foto"><img src="g/susmies-raster-1.webp" alt=""></div><div class="foto"><img src="g/susmies-raster-2.webp" alt=""></div><div class="foto"><img src="g/susmies-raster-3.webp" alt=""></div><div class="foto"><img src="g/susmies-raster-4.webp" alt=""></div><div class="foto"><img src="g/susmies-raster-5.webp" alt=""></div><div class="foto"><img src="g/susmies-raster-6.webp" alt=""></div></div><span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span></div>
+        <div class="balk"><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--roze)">s</span><span class="naam">susmies<span class="vink"></span><small>▸ Verhaal uitbreiden</small></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
         <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Een vriendin stuurt een TikTok-haul. "Dit moet je hebben."</p>
-      <span class="prijs">+ €22,95 gestreepte top</span>
+      <p>Een vriendin stuurt een haul. "Dit moet je hebben."</p>
+      <span class="prijs">+ €29,95 gestreepte muts</span>
     </article>
 
-    <!-- 19:12 · gratis verzending -->
-    <article class="moment" style="--uur:19.2" data-prijs="4.99">
+    <!-- 17:30 · nii.hai raster, weggeklikt -->
+    <article class="moment" style="--uur:17.5">
+      <span class="tijd">17:30</span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--zwart)"><div class="rooster foto-rooster"><div class="foto"><img src="g/niihai-1.webp" alt=""></div><div class="foto"><img src="g/niihai-2.webp" alt=""></div><div class="foto"><img src="g/niihai-3.webp" alt=""></div><div class="foto"><img src="g/niihai-4.webp" alt=""></div><div class="foto"><img src="g/niihai-5.webp" alt=""></div><div class="foto"><img src="g/niihai-6.webp" alt=""></div></div><span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Shoppen</span></div>
+        <div class="balk"><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--grijs)">n</span><span class="naam">nii.hai<small>▸ Verhaal uitbreiden</small></span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p>Op weg naar huis. Zes outfits, één duim.</p>
+    </article>
+
+    <!-- 18:18 · sociale bewijskracht, opulaire -->
+    <article class="moment" style="--uur:18.3" data-prijs="39">
+      <span class="tijd">18:18</span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--zwart)"><img class="stuk vol dek" src="g/opulaire.webp" alt=""><div class="schaduw"></div></div>
+        <div class="balk"><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--groen)">o</span><span class="naam">opulaire_jewelry</span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p><em>"Mila en 18.000 anderen shopten al bij ons."</em> Ik dan ook maar.</p>
+      <span class="prijs">+ €39 ring</span>
+    </article>
+
+    <!-- 19:12 · gratis bundel, theessencevault -->
+    <article class="moment" style="--uur:19.2" data-prijs="52">
       <span class="tijd">19:12</span>
       <div class="kaart advert licht">
-        <div class="vlak" style="background:var(--groen)">
-          <div class="midden">
-            <div class="bodoni" style="font-size:2.6em;line-height:1">Bijna<br><em>gratis</em><br>verzending.</div>
-            <div style="width:100%;margin-top:1.4em;text-align:left">
-              <div style="display:flex;justify-content:space-between;font-size:.9em"><span>€46 van €50</span><b>nog €4</b></div>
-              <div style="height:.55em;border-radius:1em;background:var(--grijs);margin-top:.4em;overflow:hidden"><div style="width:92%;height:100%;background:var(--zwart)"></div></div>
-            </div>
-            <div class="tegel" style="width:100%;margin-top:1.2em;display:flex;justify-content:space-between;align-items:center;padding:.8em 1em">
-              <span style="text-align:left"><b>Mascara</b><br><span style="font-size:.85em;opacity:.7">past perfect in je mandje</span></span><b>€4,99</b></div>
-          </div>
-          <span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Toevoegen</span>
-        </div>
-        <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--roze)">m</span><span class="naam">mooiwinkel<span class="vink"></span></span>
+        <div class="vlak" style="background:var(--groen)"><div class="midden" style="padding:5em 1em 2.5em"><img class="stuk mandbon" src="g/essence.webp" alt=""></div></div>
+        <div class="balk"><i class="af"></i><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--zwart);color:var(--grijs)">E</span><span class="naam">theessencevault<span class="vink"></span> <span class="wanneer">2 van 3</span></span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
-        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp">Gesponsord</span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Gratis verzending vanaf €50. Ik zit op €46. Nog snel een mascara erbij.</p>
-      <span class="prijs">+ €4,99 mascara</span>
+      <p>Twee parfumsets voor de prijs van één. <em>Gratis</em> is gratis.</p>
+      <span class="prijs">+ €52 parfum (£44,99)</span>
+    </article>
+
+    <!-- 20:12 · balibody, weggeklikt -->
+    <article class="moment" style="--uur:20.2">
+      <span class="tijd">20:12</span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--roze)"><img class="stuk vol dek" src="g/balibody.webp" alt=""><div class="schaduw"></div></div>
+        <div class="balk"><i class="af"></i><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--roze)">B</span><span class="naam">balibody<span class="vink"></span> <span class="wanneer">2 van 3</span></span>
+          <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
+      </div>
+      <p>Na het eten. 40% korting op bruiningsmelk. Het is november.</p>
     </article>
 
     <!-- 21:24 · gewone story: drie tabbladen -->
@@ -337,9 +385,9 @@
       <span class="tijd">21:24</span>
       <div class="kaart verhaal">
         <div class="vlak" style="background:var(--zwart)">
-          <div class="tab" style="top:9%;transform:rotate(-6deg)"><header>tab 1 · haulhuis</header><img class="stuk" src="../Editie%202/g/22.webp" alt=""></div>
-          <div class="tab" style="top:24%;transform:rotate(4deg)"><header>tab 2 · suède&amp;co</header><img class="stuk" src="../Editie%202/g/17.webp" alt=""></div>
-          <div class="tab" style="top:40%;transform:rotate(-2deg)"><header>tab 3 · mooiwinkel</header><img class="stuk" src="../Editie%202/g/5.webp" alt=""></div>
+          <div class="tab" style="top:9%;transform:rotate(-6deg)"><header>tab 1 · nudeproject</header><img class="stuk dek" src="g/nude.webp" alt="" style="object-position:50% 30%"></div>
+          <div class="tab" style="top:24%;transform:rotate(4deg)"><header>tab 2 · susmies</header><img class="stuk dek" src="g/susmies-raster-5.webp" alt=""></div>
+          <div class="tab" style="top:40%;transform:rotate(-2deg)"><header>tab 3 · opulaire</header><img class="stuk dek" src="g/opulaire.webp" alt="" style="object-position:50% 45%"></div>
         </div>
         <div class="balk"><i class="af"></i><i></i></div>
         <div class="wie"><span class="av"><img src="../menu/zak.png" alt=""></span><span class="naam">koopverbod <span class="wanneer">21:24</span></span>
@@ -351,25 +399,18 @@
       <p>In de zetel. Drie tabbladen open.</p>
     </article>
 
-    <!-- 22:06 · schaarste-advertentie met afteller -->
-    <article class="moment" style="--uur:22.1" data-prijs="18">
+    <!-- 22:06 · nacht: inprintwetrust -->
+    <article class="moment" style="--uur:22.1" data-prijs="35">
       <span class="tijd">22:06</span>
-      <div class="kaart advert licht">
-        <div class="vlak" style="background:var(--roze)">
-          <div class="midden">
-            <div style="font-weight:700;text-transform:uppercase;font-size:2.7em;line-height:.92;letter-spacing:-.02em">Nog maar 2 op voorraad!</div>
-            <div class="teller" style="margin-top:1.3em"><small>uitverkoop eindigt over</small><b class="afteller">01:53:59</b></div>
-            <div style="margin-top:1em"><span class="sticker">lipgloss · €18</span></div>
-          </div>
-          <span class="shop"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>NU SHOPPEN</span>
-        </div>
-        <div class="balk"><i></i></div>
-        <div class="wie"><span class="av" style="background:var(--zwart);color:var(--roze)">g</span><span class="naam">glanslab<span class="vink"></span></span>
+      <div class="kaart advert">
+        <div class="vlak" style="background:var(--roze)"><div class="groot"><div class="foto"><img src="g/inprint-1.webp" alt=""></div><div class="duo"><div class="foto"><img src="g/inprint-2.webp" alt=""></div><div class="foto"><img src="g/inprint-3.webp" alt=""></div></div></div></div>
+        <div class="balk"><i></i><i></i><i></i></div>
+        <div class="wie"><span class="av" style="background:var(--zwart);color:var(--roze)">i</span><span class="naam">inprintwetrust.co</span>
           <span class="knoppen"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="19" cy="12" r=".6"/></svg><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></span></div>
-        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp">Gesponsord</span></div>
+        <div class="onder"><span class="chat">Chatbericht sturen…</span><span class="gesp"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2L20 4l-.8 3.6A8 8 0 0 1 20 12z"/></svg>Gesponsord</span></div>
       </div>
-      <p>Nog maar 2 op voorraad!</p>
-      <span class="prijs">+ €18 lipgloss</span>
+      <p>Nog één T-shirt. Voor de grap.</p>
+      <span class="prijs">+ €35 T-shirt</span>
     </article>
 
     <!-- 22:57 · de betaalknop -->
@@ -379,8 +420,8 @@
         <div class="vlak" style="background:var(--zwart);color:var(--grijs)">
           <div class="midden" style="justify-content:flex-end;padding-bottom:2em">
             <div class="bodoni" style="font-size:1.5em;opacity:.8">jouw mandje</div>
-            <div class="bodoni totaal" style="font-size:3.6em;line-height:1.05;color:var(--roze)">€273,94</div>
-            <div style="font-size:.85em;opacity:.7;margin:.4em 0 1.6em">5 artikelen · gratis verzending</div>
+            <div class="bodoni totaal" style="font-size:3.6em;line-height:1.05;color:var(--roze)">€310,94</div>
+            <div style="font-size:.85em;opacity:.7;margin:.4em 0 1.6em">6 artikelen · gratis verzending</div>
             <div class="betaal">Betalen</div>
             <div style="font-size:.8em;opacity:.6;margin-top:.8em">Vandaag besteld, morgen in huis</div>
           </div>
